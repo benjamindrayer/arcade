@@ -1,0 +1,1 @@
+You need to install pygame

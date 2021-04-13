@@ -7,10 +7,10 @@ import time
 
 # TODO: Animation for deletion of lines
 # TODO: Ending screens 1, 2 and 3
-# TODO: Leaderboard loading and showing
-# TODO: Leaderboard edit and save
 # TODO: Sound
 # TODO: Proper class to handle the control
+# TODO: Rotation at the wall
+# TODO: Play again option
 
 COLOR = COLOR_MAP_0
 
@@ -69,7 +69,7 @@ def number_to_string(n):
     :param n:
     :return:
     """
-    return "{:5d}".format(n)
+    return "{:6d}".format(n)
 
 
 def score_from_lines(n):
@@ -170,7 +170,7 @@ def run_leader_board(score):
     screen.write_string("HIGH SCORE", 13, 10, [50, 50, 255])
     LEADER_BOARD_X = 10
     for index, leader in enumerate(leader_board):
-        message = '{:3s} {:5d}'.format(leader[0], leader[1])
+        message = '{:3s} {:6d}'.format(leader[0], leader[1])
         screen.write_string(message, LEADER_BOARD_X, 18 + index * 8)
     screen.show()
     #4. Edit mode if score changed
@@ -224,19 +224,19 @@ lines = 0
 level = 0
 game_board = Board(10, 20)
 preview = Board(6, 5)
-POS_X_SCORE_TEXT = 42
+POS_X_SCORE_TEXT = 43
 POS_Y_SCORE_TEXT = 20
-POS_X_SCORE_NUMBER = POS_X_SCORE_TEXT
+POS_X_SCORE_NUMBER = POS_X_SCORE_TEXT-4
 POS_Y_SCORE_NUMBER = POS_Y_SCORE_TEXT + 6
 
 POS_X_LINE_TEXT = POS_X_SCORE_TEXT
 POS_Y_LINE_TEXT = POS_Y_SCORE_NUMBER + 10
-POS_X_LINE_NUMBER = POS_X_SCORE_TEXT
+POS_X_LINE_NUMBER = POS_X_SCORE_TEXT-4
 POS_Y_LINE_NUMBER = POS_Y_LINE_TEXT + 6
 
 POS_X_LEVEL_TEXT = POS_X_SCORE_TEXT
 POS_Y_LEVEL_TEXT = POS_Y_LINE_NUMBER + 10
-POS_X_LEVEL_NUMBER = POS_X_SCORE_TEXT
+POS_X_LEVEL_NUMBER = POS_X_SCORE_TEXT-4
 POS_Y_LEVEL_NUMBER = POS_Y_LEVEL_TEXT + 6
 
 screen.write_string("SCORE", POS_X_SCORE_TEXT, POS_Y_SCORE_TEXT)

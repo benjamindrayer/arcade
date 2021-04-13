@@ -213,7 +213,7 @@ class TetrisOscar(Rock):
         self.offsets_1 = [[1, 1], [0, 1], [0, 0], [1, 0]]
         self.offsets_2 = [[0, 1], [0, 0], [1, 0], [1, 1]]
         self.offsets_3 = [[0, 0], [1, 0], [1, 1], [0, 1]]
-        self.texture = [1, 1, 1, 1]
+        self.texture = [5, 5, 5, 5]
         super().__init__(x, y)
 
 
@@ -228,7 +228,7 @@ class TetrisIndia(Rock):
         self.offsets_1 = [[0, -3], [0, -2], [0, -1], [0, 0]]
         self.offsets_2 = [[2, 0], [1, 0], [0, 0], [-1, 0]]
         self.offsets_3 = [[0, 0], [0, -1], [0, -2], [0, -3]]
-        self.texture = [2, 2, 2, 2]
+        self.texture = [3, 3, 3, 3]
         super().__init__(x, y)
 
 
@@ -243,7 +243,7 @@ class TetrisAlpha(Rock):
         self.offsets_1 = [[0, 0], [1, 1], [1, 0], [1, -1]]
         self.offsets_2 = [[0, 0], [-1, -1], [0, -1], [1, -1]]
         self.offsets_3 = [[0, 0], [-1, 1], [-1, 0], [-1, -1]]
-        self.texture = [3, 3, 3, 3]
+        self.texture = [4, 4, 4, 4]
         super().__init__(x, y)
 
 
@@ -258,7 +258,7 @@ class TetrisJuliett(Rock):
         self.offsets_1 = [[-1, 1], [0, 1], [1, 1], [1, 2]]
         self.offsets_2 = [[0, 0], [-1, 0], [-1, 1], [-1, 2]]
         self.offsets_3 = [[-1, 1], [-1, 2], [0, 2], [1, 2]]
-        self.texture = [4, 4, 4, 4]
+        self.texture = [1, 1, 1, 1]
         super().__init__(x, y)
 
 
@@ -273,7 +273,7 @@ class TetrisLima(Rock):
         self.offsets_1 = [[-1, 2], [0, 2], [1, 2], [1, 1]]
         self.offsets_2 = [[0, 0], [1, 0], [1, 1], [1, 2]]
         self.offsets_3 = [[-1, 2], [-1, 1], [0, 1], [1, 1]]
-        self.texture = [5, 5, 5, 5]
+        self.texture = [6, 6, 6, 6]
         super().__init__(x, y)
 
 
@@ -288,7 +288,7 @@ class TetrisSierra(Rock):
         self.offsets_1 = [[0, 1], [1, 1], [0, 2], [-1, 2]]
         self.offsets_2 = [[1, 2], [1, 1], [0, 1], [0, 0]]
         self.offsets_3 = [[-1, 2], [0, 2], [1, 1], [0, 1]]
-        self.texture = [6, 6, 6, 6]
+        self.texture = [2, 2, 2, 2]
         super().__init__(x, y)
 
 

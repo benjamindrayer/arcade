@@ -1,5 +1,6 @@
 import pygame
 from game.tetris import *
+from game.textures import *
 from display.display import *
 import matplotlib.image as img
 import time
@@ -11,18 +12,7 @@ import time
 # TODO: Sound
 # TODO: Proper class to handle the control
 
-COLOR = {
-    0: [20, 20, 20],
-    1: [0, 255, 255],
-    2: [0, 255, 0],
-    3: [0, 0, 200],
-    4: [210, 144, 0],
-    5: [244, 255, 0],
-    6: [255, 0, 0],
-    7: [192, 0, 210],
-    8: [0, 255, 200],
-}
-
+COLOR = COLOR_MAP_0
 
 def show_splash_screen():
     # reading png image file
@@ -293,6 +283,7 @@ while running:
             lines = lines + new_lines
             score = score + score_from_lines(new_lines)
             level = int(lines / 10)
+            COLOR = COLOR_MAPS[level % len(COLOR_MAPS)]
             block_next.remove_from_board(preview)
             block_current = block_next
             block_current.set_position(5, 0)

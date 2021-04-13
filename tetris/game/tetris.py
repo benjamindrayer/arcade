@@ -50,6 +50,9 @@ class Board:
         """
         if self.point_in_field(x, y):
             return self.field[x, y] == self.back_ground
+        else:
+            if 0 <= x < self.field.shape[0] and y < self.field.shape[1]:
+                return True
         return False
 
     def erase_rows(self, lines):
@@ -299,7 +302,7 @@ class TetrisZulu(Rock):
         self.offsets_0 = [[0, 0], [0, 1], [-1, 1], [-1, 2]]
         self.offsets_1 = [[0, 1], [-1, 1], [0, 2], [1, 2]]
         self.offsets_2 = [[-1, 2], [-1, 1], [0, 1], [0, 0]]
-        self.offsets_3 = [[1, 2], [0, 2], [-1, 1], [-1, 2]]
+        self.offsets_3 = [[1, 2], [0, 2], [-1, 1], [0, 1]]
         self.texture = [7, 7, 7, 7]
         super().__init__(x, y)
 

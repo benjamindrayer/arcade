@@ -55,7 +55,7 @@ class Board:
                 return True
         return False
 
-    def erase_rows(self, lines):
+    def erase_lines(self, lines):
         """Erase the lines
 
         :param lines: lines to be removed from the field
@@ -64,21 +64,28 @@ class Board:
         for line_id in lines:
             self.field[:, 1:line_id + 1] = self.field[:, :line_id]
 
-    def check_for_completion(self):
-        """Check if there are any lines complete
+    def line_is_complete(self, y):
+        """Check if line y is complete
+
+        :param y: line index
+        :return: True id complete
+        """
+        line_complete = True
+        for x in range(self.field.shape[0]):
+            if self.field[x, y] == self.back_ground:
+                line_complete = False
+        return line_complete
+
+    def get_complete_lines(self):
+        """get list of complete lines
 
         :return: list of complete lines
         """
         line_ids = []
         for y in range(self.field.shape[1]):
-            line_complete = True
-            for x in range(self.field.shape[0]):
-                if self.field[x, y] == self.back_ground:
-                    line_complete = False
-            if line_complete:
+            if self.line_is_complete(y):
                 line_ids.append(y)
-        self.erase_rows(line_ids)
-        return len(line_ids)
+        return line_ids
 
 
 class Rock:

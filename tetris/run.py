@@ -44,12 +44,28 @@ def show_splash_screen():
     screen.show()
 
 
-def display(board, offset_x, offset_y):
+def display_board(board, screen, offset_x, offset_y):
+    """Display the game board on the screen
+
+    :param board: the gameboard
+    :param screen: the display handler
+    :param offset_x: anchor x of the display
+    :param offset_y: anchor y of the display
+    """
+    #Color the border
+    color_border = [50, 50, 50]
     scale = 3
+    for x in range(board.field.shape[0]*scale+2):
+        screen.set_pixel(x + offset_x, offset_y, color_border)
+        screen.set_pixel(x + offset_x, offset_y+board.field.shape[1]*scale+1, color_border)
+    for y in range(board.field.shape[1]*scale+2):
+        screen.set_pixel(offset_x, y + offset_y, color_border)
+        screen.set_pixel(offset_x+board.field.shape[0]*scale+1, y + offset_y, color_border)
+
     for xb in range(board.field.shape[0]):
         for yb in range(board.field.shape[1]):
-            x = xb * scale + offset_x
-            y = yb * scale + offset_y
+            x = xb * scale + offset_x + 1
+            y = yb * scale + offset_y + 1
             color = COLOR[board.field[xb, yb]]
             screen.set_pixel(x + 0, y, color)
             screen.set_pixel(x + 1, y, color)
@@ -105,6 +121,12 @@ def get_prev_char(character):
         i = 57
     return chr(i)
 
+def delete_lines_animation(game_board, line_ids, width):
+    for x in range(width):
+        for y in line_ids:
+            game_board.clear_element(x, y)
+        display_board(game_board, screen, GAME_BOARD_X, GAME_BOARD_Y)
+        time.sleep(0.02)
 
 def load_leader_board(file_name):
     """load the leader board from the file name
@@ -273,13 +295,19 @@ while running:
     keys = pygame.key.get_pressed()
     if keys[pygame.K_DOWN]:
         block_current.move_down(game_board)
-    display(game_board, 9, 2)
-    display(preview, 43, 2)
+    display_board(game_board, screen, GAME_BOARD_X, GAME_BOARD_Y)
+    display_board(preview, screen, 41, 1)
     iterations = (iterations + 1) % (20 - min(19, level))
     ok = True
     if iterations == 0:
         if not block_current.move_down(game_board):
-            new_lines = game_board.check_for_completion()
+            complete_lines = game_board.get_complete_lines()
+            if len(complete_lines):
+                #animate the deletion of the lines
+                delete_lines_animation(game_board, complete_lines, 10)
+                #delete the lines
+                game_board.erase_lines(complete_lines)
+            new_lines = len(complete_lines)
             lines = lines + new_lines
             score = score + score_from_lines(new_lines)
             level = int(lines / 10)
@@ -299,7 +327,6 @@ while running:
             screen.write_string(lines_string, POS_X_LINE_NUMBER, POS_Y_LINE_NUMBER)
     if not ok:
         running = False
-        print("You have Lost the game")
         screen.write_string("GAME", 15, 25)
         screen.write_string("OVER", 15, 31)
         screen.show()

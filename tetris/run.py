@@ -5,14 +5,19 @@ from display.display import *
 import matplotlib.image as img
 import time
 
-# TODO: Animation for deletion of lines
 # TODO: Ending screens 1, 2 and 3
 # TODO: Sound
 # TODO: Proper class to handle the control
 # TODO: Rotation at the wall
 # TODO: Play again option
+# TODO: Score for moving the block downwards fast
 
-COLOR = COLOR_MAP_0
+COLOR = COLOR_MAPS[0]
+
+#Anchor of the board
+GAME_BOARD_X = 4
+GAME_BOARD_Y = 1
+
 
 def show_splash_screen():
     # reading png image file
@@ -127,6 +132,15 @@ def delete_lines_animation(game_board, line_ids, width):
             game_board.clear_element(x, y)
         display_board(game_board, screen, GAME_BOARD_X, GAME_BOARD_Y)
         time.sleep(0.02)
+
+def fill_board_animation(game_board, screen):
+    for y in range(game_board.field.shape[1]):
+        for x in range(game_board.field.shape[0]):
+            col_ind = int(8-abs((y % 14) - 7))
+            game_board.set_element(x, game_board.field.shape[1]-(y+1), col_ind)
+        display_board(game_board, screen, GAME_BOARD_X, GAME_BOARD_Y)
+        time.sleep(0.05)
+
 
 def load_leader_board(file_name):
     """load the leader board from the file name
@@ -326,9 +340,11 @@ while running:
             lines_string = number_to_string(lines)
             screen.write_string(lines_string, POS_X_LINE_NUMBER, POS_Y_LINE_NUMBER)
     if not ok:
+        fill_board_animation(game_board, screen)
         running = False
-        screen.write_string("GAME", 15, 25)
-        screen.write_string("OVER", 15, 31)
+        screen.fill_rectangle(11, 30, 20, 36, [0, 0, 0])
+        screen.write_string("GAME", 13, 22)
+        screen.write_string("OVER", 13, 29)
         screen.show()
         time.sleep(5)
 # high score

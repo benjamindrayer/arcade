@@ -100,11 +100,12 @@ class Display:
         """
         x_size = len(message) * 4 - 1
         for i in range(x_size):
-            self.image[x + i, y, :] = background
-            self.image[x + i, y + 1, :] = background
-            self.image[x + i, y + 2, :] = background
-            self.image[x + i, y + 3, :] = background
-            self.image[x + i, y + 4, :] = background
+            if background:
+                self.image[x + i, y, :] = background
+                self.image[x + i, y + 1, :] = background
+                self.image[x + i, y + 2, :] = background
+                self.image[x + i, y + 3, :] = background
+                self.image[x + i, y + 4, :] = background
 
         x_pos = x
         for letter in message:
@@ -115,7 +116,8 @@ class Display:
                     color = foreground
                 x_image = x_pos + (i % 3)
                 y_image = y + int(i/3)
-                self.image[x_image, y_image, :] = color
+                if color:
+                    self.image[x_image, y_image, :] = color
             x_pos = x_pos + 4
 
     def place_sprite(self, sprite, x_anchor, y_anchor):

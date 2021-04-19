@@ -118,8 +118,8 @@ class FlexChainGame:
         self.colorMe((0,255,1))
         self.display.write_string("WINNER", 13, 10, [50, 50, 255])
         if debug == 1: print("winner")
-        self.drawMe()
-        time.sleep(5.0)
+        self.display.show()
+        time.sleep(10.0)
 
     def iAmDead(self):
         self.colorMe((255,0,0))
@@ -128,8 +128,8 @@ class FlexChainGame:
         if debug == 1: print("crash at",self.tail[0].x, ",",self.tail[0].y)
         for i in range(0,self.length):
             if debug == 2: print("tail [",i,"]",self.tail[i].x,",",self.tail[i].y)
-        self.drawMe()
-        time.sleep(5.0)
+        self.display.show()
+        time.sleep(10.0)
 
     def drawMe(self):
         self.display.clear_screen([0, 0, 0])

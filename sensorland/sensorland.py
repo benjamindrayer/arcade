@@ -1,4 +1,4 @@
-#Stefan in Sensorland
+# Stefan in Sensorland
 import matplotlib.image as img
 import numpy as np
 import os
@@ -6,6 +6,27 @@ import time
 import pygame
 
 GROUND_LEVEL = 31
+
+
+def get_image_scene(position_x, width_x, image_in):
+    """Get section of the image
+
+    :param position_x:
+    :param width_x:
+    :param image_in:
+    :return:
+    """
+    image_out = np.zeros((width_x, image_in.shape[1], image_in.shape[2]))
+    start = position_x % image_in.shape[0]
+    stop = start + width_x
+    if stop < image_in.shape[0]:
+        image_out[:, :, :] = image_in[start:stop, :, :]
+    else:
+        delta = image_in.shape[0] - start
+        image_out[:delta, :, :] = image_in[start:, :, :]
+        image_out[delta:, :, :] = image_in[:width_x - delta, :, :]
+    return image_out
+
 
 class SensorLandGame:
     def __init__(self):
@@ -28,33 +49,16 @@ class SensorLandGame:
 
         :return:
         """
-        start = position % mountains.shape[0]
-        stop = start + 64
-        if stop < mountains.shape[0]:
-            self.mountains = mountains[start:stop, :, :]
-        else:
-            delta = mountains.shape[0] - start
-            self.mountains[:delta] = mountains[start:, :, :]
-            #TODO use display property, do not hardcode 64
-            self.mountains[delta:64] = mountains[:64-delta, :, :]
-        self.display.place_sprite(self.mountains, 0, 21)
+        m = get_image_scene(position, self.display.size_x, mountains)
+        self.display.place_sprite(m, 0, 21)
 
     def do_circuit(self, circuit, position):
-        """Move the mountains
+        """Move the circuit
 
         :return:
         """
-        start = position % circuit.shape[0]
-        stop = start + 64
-        if stop < circuit.shape[0]:
-            self.temp = circuit[start:stop, :, :]
-        else:
-            delta = circuit.shape[0] - start
-            self.temp[:delta] = circuit[start:, :, :]
-            #TODO use display property, do not hardcode 64
-            self.temp[delta:64] = circuit[:64-delta, :, :]
-        self.display.place_sprite(self.temp, 0, 46)
-
+        m = get_image_scene(position, self.display.size_x, circuit)
+        self.display.place_sprite(m, 0, 46)
 
     def do_sky(self, sky, iteration):
         """
@@ -63,9 +67,9 @@ class SensorLandGame:
         :param iteration:
         :return:
         """
-        x = int(32 + np.cos(iteration/60) * 32)
-        y = int(32 + np.sin(iteration/60) * 32)
-        self.display.show_image(sky[x:x+64, y:y+64, :])
+        x = int(32 + np.cos(iteration / 60) * 32)
+        y = int(32 + np.sin(iteration / 60) * 32)
+        self.display.show_image(sky[x:x + 64, y:y + 64, :])
 
     def run_game(self, display, input_control):
         """Run the Game
@@ -82,7 +86,7 @@ class SensorLandGame:
         im_arrow_right = img.imread('sensorland/images/stefan_2.png')
         stefan_2 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
 
-        mountains = img.imread('sensorland/images/mountains.png')
+        mountains = img.imread('sensorland/images/mountains3.png')
         mountains = np.transpose(mountains, (1, 0, 2)) * 255
 
         circuit = img.imread('sensorland/images/circuit.png')
@@ -101,9 +105,8 @@ class SensorLandGame:
         iteration = 0
         self.player_y = GROUND_LEVEL
         while running:
-#            self.display.show_image(sun)
-            self.do_sky(sky, iteration*1)
-            self.do_mountains(mountains, int(iteration/2))
+            self.do_sky(sky, iteration * 1)
+            self.do_mountains(mountains, int(iteration * 12))
             self.do_circuit(circuit, iteration)
             if not jumping:
                 if iteration % 2 == 0:
@@ -124,6 +127,9 @@ class SensorLandGame:
                 else:
                     jumping = False
             iteration = iteration + 1
+            # show score
+            self.display.write_string("SCORE", 1, 0, background=None)
+            self.display.write_string("{:8d}".format(iteration), 20, 0, background=None)
             self.display.show()
             time.sleep(0.1)
         print("Implement me")

@@ -106,8 +106,8 @@ class SensorLandGame:
         self.player_y = GROUND_LEVEL
         while running:
             self.do_sky(sky, iteration * 1)
-            self.do_mountains(mountains, int(iteration * 12))
-            self.do_circuit(circuit, iteration)
+            self.do_mountains(mountains, int(iteration * 1))
+            self.do_circuit(circuit, iteration*2)
             if not jumping:
                 if iteration % 2 == 0:
                     self.display.place_sprite(stefan_0, 5, self.player_y)

@@ -93,7 +93,7 @@ class FlexChainGame:
         newX = curX
         newY = curY
 
-        print("moving ",self.dir)
+        if debug == 1: print("moving ",self.dir)
         if self.dir == Dir.UP:
             newY = curY+1
         elif self.dir == Dir.DOWN:
@@ -117,7 +117,7 @@ class FlexChainGame:
     def iAmWinner(self):
         self.colorMe((0,255,1))
         self.display.write_string("WINNER", 13, 10, [50, 50, 255])
-        print("winner")
+        if debug == 1: print("winner")
         self.drawMe()
         time.sleep(5.0)
 
@@ -125,9 +125,9 @@ class FlexChainGame:
         self.colorMe((255,0,0))
         self.running = False
         self.display.write_string("YOU DIED", 13, 10, [255, 0, 5])
-        print("crash at",self.tail[0].x, ",",self.tail[0].y)
+        if debug == 1: print("crash at",self.tail[0].x, ",",self.tail[0].y)
         for i in range(0,self.length):
-            print("tail [",i,"]",self.tail[i].x,",",self.tail[i].y)
+            if debug == 2: print("tail [",i,"]",self.tail[i].x,",",self.tail[i].y)
         self.drawMe()
         time.sleep(5.0)
 
@@ -139,7 +139,7 @@ class FlexChainGame:
 
         #FlexChain
         for i in range(0,self.length):
-             #print("drawing [",i,"]",self.tail[i].x,",",self.tail[i].y,"(",self.tail[i].col[0],",",self.tail[i].col[1],",",self.tail[i].col[2],")")
+             if debug == 2: print("drawing [",i,"]",self.tail[i].x,",",self.tail[i].y,"(",self.tail[i].col[0],",",self.tail[i].col[1],",",self.tail[i].col[2],")")
              self.display.fill_rectangle(self.tail[i].x, self.tail[i].x , self.tail[i].y, self.tail[i].y , self.tail[i].col)
         self.display.show()
 

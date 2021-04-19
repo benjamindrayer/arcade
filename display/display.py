@@ -86,7 +86,7 @@ class Display:
         :param image: the image
         :return:
         """
-        self.image = image
+        self.image = image.copy()
 
     def write_string(self, message, x, y, foreground=[255, 255, 255], background=[0, 0, 0]):
         """Write a string, starting at position x, y with given fg and bg color
@@ -141,4 +141,5 @@ class Display:
                 for y in range(self.size_y):
                     color = (self.image[x, y, 0], self.image[x, y, 1], self.image[x, y, 2])
                     pygame.draw.circle(self.scr, color, ((x+0.5) * self.factor, (y+0.5) * self.factor), self.factor/2-1)
+#                    pygame.draw.rect(self.scr, color, pygame.Rect(x* self.factor, y* self.factor, self.factor, self.factor) )
             pygame.display.update()

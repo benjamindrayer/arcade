@@ -32,6 +32,7 @@ class InputControl:
         if self.input_type == 0:
             keys = pygame.key.get_pressed()
             return keys[pygame.K_UP]
+        return False
 
     def down_key_pressed(self):
         if self.input_type == 0:

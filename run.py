@@ -6,6 +6,7 @@ from controls.input_control import *
 #Import the games
 from sensorland.sensorland import SensorLandGame
 from tetris.tetris import Tetris
+from FlexChain.FlexChain import FlexChainGame
 
 #TODO true alpha in images
 #TODO splash screen
@@ -29,7 +30,7 @@ screen = Display(DISPLAY_WITH, DISPLAY_HEIGHT)
 pygame.init()
 pygame.display.set_caption('Stefan')
 
-awesome_games = [SensorLandGame(), Tetris()]
+awesome_games = [SensorLandGame(), Tetris(), FlexChainGame()]
 
 #Do the selection menu only left and right are required
 game_index = 0
@@ -62,5 +63,7 @@ while running:
         game_index += 1
         if game_index >= len(awesome_games):
             game_index = 0
+
+
     if input_control.up_key_pressed() == 1:
         selected_game.run_game(screen, input_control=input_control)

@@ -116,20 +116,30 @@ class FlexChainGame:
 
     def iAmWinner(self):
         self.colorMe((0,255,1))
-        self.display.write_string("WINNER", 13, 10, [50, 50, 255])
         if debug == 1: print("winner")
+        self.drawMe()
+        self.display.write_string("WINNER", 13, 10, [50, 50, 255])
         self.display.show()
-        time.sleep(10.0)
+        time.sleep(3.0)
 
     def iAmDead(self):
         self.colorMe((255,0,0))
         self.running = False
-        self.display.write_string("YOU DIED", 13, 10, [255, 0, 5])
         if debug == 1: print("crash at",self.tail[0].x, ",",self.tail[0].y)
         for i in range(0,self.length):
             if debug == 2: print("tail [",i,"]",self.tail[i].x,",",self.tail[i].y)
+
+        self.drawMe()
+        self.display.write_string("YOU DIED", 13, 10, [255, 0, 5])
         self.display.show()
-        time.sleep(10.0)
+        time.sleep(2.0)
+        for i in range(0,64):
+            r = i*4
+            if r > 255:
+                r=255
+            self.display.clear_screen([r, 0, 0])
+            self.display.show()
+            time.sleep(0.125)
 
     def drawMe(self):
         self.display.clear_screen([0, 0, 0])
@@ -205,7 +215,7 @@ class FlexChainGame:
                     if input_control.up_key_pressed() == 1:
                         if debug == 1: print("up")
                         self.dir = Dir.DOWN
-                    elif input_control.down_key_pressed() == 1:
+                    elif input_control.down_key_pressed() == 1 and self.dir != Dir.STOP:
                         if debug == 1: print("down")
                         self.dir = Dir.UP
                     elif input_control.left_key_pressed() == 1:

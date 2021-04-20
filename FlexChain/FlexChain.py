@@ -72,6 +72,7 @@ class FlexChainGame:
         self.maxBlue = 255
         self.deltaBlue = 10
 
+        #init the first flexchain body
         for i in range(1, self.length):
             self.body.append(Pixel(maxX / 2, maxY / 2 + i, (0, 30, 255)))
 
@@ -83,6 +84,7 @@ class FlexChainGame:
         color (0,0,0) makes random stuff
         show = True makes boring animations.
         """
+        #the title is wobbling between blueish and greenish. here is where the magic happens.
         self.colorBlue = self.colorBlue + self.deltaBlue
         if self.colorBlue > self.maxBlue:
             self.colorBlue = self.maxBlue
@@ -94,6 +96,7 @@ class FlexChainGame:
         randomCol = False
         if color == (0, 0, 0): randomCol = True
 
+        #add some text stuff
         #print("blue:",self.colorBlue , " delta:", self.deltaBlue)
         self.display.write_string("FLEX CHAIN GAME", 1, 1, [0,int(150-self.colorBlue/2),self.colorBlue])
         if randomCol: color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
@@ -101,6 +104,7 @@ class FlexChainGame:
         if randomCol: color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
         self.display.write_string(str(self.length), 27, 7, color)
 
+        #horizonzal borders
         for i in range(minX, maxX+1):
             if randomCol : color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
             self.display.fill_rectangle(i, i, minY, minY, color)
@@ -108,6 +112,7 @@ class FlexChainGame:
             self.display.fill_rectangle(i, i, maxY, maxY, color)
             if show == True: self.display.show()
 
+        #draw some more borders
         for i in range(minY, maxY):
             if randomCol : color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
             self.display.fill_rectangle(minX, minX, i, i, color)
@@ -128,7 +133,7 @@ class FlexChainGame:
         check if the flexchain is about to eat an apple, itself or the border.
         last two aren't good actually
 
-        make a smal step forward if dead
+        make a small step forward if not dead
         (or a big leap for flex-chain-kind)
         """
         if debugMode == 1: print("hitControl ", x, ",", y)

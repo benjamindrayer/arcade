@@ -48,6 +48,11 @@ class Tetris:
         self.display = 0
         self.input_control = 0
         self.color_map = COLOR_MAPS[0]
+        self.sound_rotate = pygame.mixer.Sound('tetris/sound/rotation.wav')
+        self.sound_landing = pygame.mixer.Sound('tetris/sound/block_landed.wav')
+        self.sound_game_over = pygame.mixer.Sound('tetris/sound/game_over.wav')
+        self.line_clear = pygame.mixer.Sound('tetris/sound/line_clear.wav')
+        self.four_lines_clear = pygame.mixer.Sound('tetris/sound/4_lines.wav')
 
     def get_title_image(self):
         """Get the iconic image of the game
@@ -72,7 +77,8 @@ class Tetris:
         preview = Board(6, 5)
         self.display.clear_screen([0, 0, 0])
 
-        print("Implement me")
+        pygame.mixer.music.load('tetris/sound/theme.mp3')
+        pygame.mixer.music.play(-1, 0.0)
 
         block_current = get_random_block()
         block_next = get_random_block()
@@ -92,6 +98,7 @@ class Tetris:
                 if keys[pygame.K_RIGHT] and event.type == pygame.KEYDOWN:
                     block_current.move_right(game_board)
                 if keys[pygame.K_UP] and event.type == pygame.KEYDOWN:
+                    pygame.mixer.Sound.play(self.sound_rotate)
                     block_current.rotate(game_board)
                 if keys[pygame.K_DOWN] and event.type == pygame.KEYDOWN:
                     block_current.move_down(game_board)
@@ -103,8 +110,13 @@ class Tetris:
             ok = True
             if iterations == 0:
                 if not block_current.move_down(game_board):
+                    pygame.mixer.Sound.play(self.sound_landing)
                     complete_lines = game_board.get_complete_lines()
                     if len(complete_lines):
+                        if len(complete_lines) == 4:
+                            pygame.mixer.Sound.play(self.four_lines_clear)
+                        else:
+                            pygame.mixer.Sound.play(self.line_clear)
                         # animate the deletion of the lines
                         self.delete_lines_animation(game_board, complete_lines)
                         # delete the lines
@@ -112,7 +124,7 @@ class Tetris:
                     new_lines = len(complete_lines)
                     lines = lines + new_lines
                     score = score + score_from_lines(new_lines)
-                    level = int(lines / 1)
+                    level = int(lines / 10)
                     self.color_map = COLOR_MAPS[level % len(COLOR_MAPS)]
                     block_next.remove_from_board(preview)
                     block_current = block_next
@@ -125,6 +137,8 @@ class Tetris:
             self.display.show()
             iterations = (iterations + 1) % (20 - min(19, level))
             if not ok:
+                pygame.mixer.music.pause()
+                pygame.mixer.Sound.play(self.sound_game_over)
                 self.fill_board_animation(game_board)
                 running = False
                 self.display.fill_rectangle(11, 30, 20, 36, [0, 0, 0])
@@ -133,6 +147,8 @@ class Tetris:
                 self.display.show()
                 time.sleep(5)
         # high score
+        pygame.mixer.music.load('tetris/sound/highscore.mp3')
+        pygame.mixer.music.play(-1, 0.0)
         self.display.clear_screen()
         image = img.imread(os.path.join(self.path, 'images/high_score.png'))
         image = np.transpose(image[:, :, :3], (1, 0, 2)) * 255
@@ -140,6 +156,7 @@ class Tetris:
         self.display.write_string("HIGH SCORE", 13, 10, [50, 50, 255])
         leader_board.run_leader_board(score, self.display, self.input_control)
         time.sleep(1)
+        pygame.mixer.music.pause()
 
     def show_splash_screen(self):
         """Show the splash screen at start of the game

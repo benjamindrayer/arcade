@@ -5,6 +5,7 @@ import os
 import time
 import pygame
 from random import randrange
+from leaderboard.leader_board import *
 
 
 class Dir(Enum):
@@ -25,10 +26,10 @@ class Pixel:
 
 maxX = 64-1
 maxY = 64-1
-minX = 1
+minX = 0
 minY = 12
 lengthToWin = (maxY-minY)*(maxX-minY)-1
-debugMode = 0
+debugMode = 1
 startLength = 3
 if debugMode >= 1:
     startLength = 198 #more cheats!
@@ -50,6 +51,7 @@ class FlexChainGame:
         self.minBlue = 0
         self.maxBlue = 0
         self.deltaBlue = 0
+        self.leaderBoard = LeaderBoard('FlexChain/records.txt')
         self.reInit()
 
     def reInit(self):
@@ -71,7 +73,7 @@ class FlexChainGame:
 
         if debugMode == 1: print("FlexChainGame set-up and ready to go")
 
-    def drawBorder(self, color):
+    def drawBorder(self, color, show = False):
         self.colorBlue = self.colorBlue + self.deltaBlue
         if self.colorBlue > self.maxBlue:
             self.colorBlue = self.maxBlue
@@ -80,19 +82,34 @@ class FlexChainGame:
             self.colorBlue = self.minBlue
             self.deltaBlue = self.deltaBlue * -1
 
+        randomCol = False
+        if color == (0, 0, 0): randomCol = True
+
         #print("blue:",self.colorBlue , " delta:", self.deltaBlue)
         self.display.write_string("FLEX CHAIN GAME", 1, 1, [0,int(150-self.colorBlue/2),self.colorBlue])
+        if randomCol: color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
         self.display.write_string("SCORE:", 1, 7, color)
+        if randomCol: color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
         self.display.write_string(str(self.length), 27, 7, color)
 
-        for i in range(minX, maxX):
+        for i in range(minX, maxX+1):
+            if randomCol : color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
             self.display.fill_rectangle(i, i, minY, minY, color)
+            if randomCol: color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
             self.display.fill_rectangle(i, i, maxY, maxY, color)
+            if show == True: self.display.show()
 
         for i in range(minY, maxY):
+            if randomCol : color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
             self.display.fill_rectangle(minX, minX, i, i, color)
+            if randomCol: color = (randrange(0, 255), randrange(0, 255), randrange(0, 255))
             self.display.fill_rectangle(maxX, maxX, i, i, color)
+            if show == True: self.display.show()
 
+    def finishIt(self):
+        self.display.clear_screen([32, 32, 32])
+        self.drawBorder((0,0,0),True)
+        self.leaderBoard.run_leader_board(self.length, self.display, self.input_control)
 
 
     def hitControl(self, x, y):
@@ -179,7 +196,8 @@ class FlexChainGame:
                 g = 255
             self.display.clear_screen([0, g, 0])
             self.display.show()
-            time.sleep(0.125)
+            time.sleep(0.075)
+        self.finishIt()
 
     def iAmDead(self):
         self.colorMe((255, 0, 0))
@@ -198,7 +216,8 @@ class FlexChainGame:
                 r = 255
             self.display.clear_screen([r, 0, 0])
             self.display.show()
-            time.sleep(0.125)
+            time.sleep(0.075)
+        self.finishIt()
 
     def drawMe(self):
         self.display.clear_screen([0, 0, 0])
@@ -248,11 +267,12 @@ class FlexChainGame:
 
         self.display.clear_screen([0, 0, 0])
 
-        self.display.write_string("RUN", 13, 10, [50, 50, 255])
+        self.display.write_string("WELCOME...", 7, 20, [50, 50, 255])
         self.display.show()
+        self.drawBorder((0,0,0),True)
 
         if debugMode == 1: print("hello")
-        time.sleep(1.0)
+        time.sleep(3.0)
 
         self.display.clear_screen([0, 0, 0])
         self.display.show()
@@ -301,4 +321,4 @@ class FlexChainGame:
 
                 prescalerCurrentIncrement = 0
 
-    time.sleep(5.0)
+    time.sleep(2.0)

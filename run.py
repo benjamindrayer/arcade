@@ -47,7 +47,7 @@ while running:
         show_arrows = not show_arrows
     if show_arrows:
         screen.place_sprite(im_arrow_left, 0, 25)
-        screen.place_sprite(im_arrow_right, 55, 25)
+        screen.place_sprite(im_arrow_right, 53, 25)
     screen.show()
     pygame.time.delay(100)
     for event in pygame.event.get():

@@ -7,7 +7,7 @@ import pygame
 from random import randrange
 from leaderboard.leader_board import *
 
-
+#simple enum to avoid using 1 for up. yay, so efficient!
 class Dir(Enum):
     STOP = 0
     UP = 1
@@ -16,7 +16,7 @@ class Dir(Enum):
     LEFT = 4
     CRASH = 5
 
-
+#helper for a pixel. why so complicated?
 class Pixel:
     def __init__(self, x, y, col):
         self.x = int(x)
@@ -24,16 +24,16 @@ class Pixel:
         self.col = col
 
 
-maxX = 64-1
-maxY = 64-1
-minX = 0
-minY = 12
-lengthToWin = (maxY-minY)*(maxX-minY)-1
-debugMode = 1
-startLength = 3
-if debugMode >= 1:
-    startLength = 198 #more cheats!
-    lengthToWin = startLength+2 #cheat!
+maxX = 64-1  #coordinates
+maxY = 64-1  #coordinates
+minX = 0     #coordinates
+minY = 12    #last coordinates
+lengthToWin = (maxY-minY)*(maxX-minY)-1  #TODO may be a bit hard to reach.
+debugMode = 0  #enable if you want to get to know stuff. or cheat
+startLength = 3 #too short?
+if debugMode >= 1: #these aren't the cheats you were looking for
+    startLength = 198 #cheat!
+    lengthToWin = startLength+2 #more cheats!
 
 
 
@@ -55,6 +55,10 @@ class FlexChainGame:
         self.reInit()
 
     def reInit(self):
+        """
+        yeah. uhm. uh.
+        init all the stuf you can find
+        """
         self.path = os.path.dirname(__file__)
         self.length = startLength
         self.movementDir = Dir.STOP
@@ -74,6 +78,11 @@ class FlexChainGame:
         if debugMode == 1: print("FlexChainGame set-up and ready to go")
 
     def drawBorder(self, color, show = False):
+        """
+        draw a border and title and stats.
+        color (0,0,0) makes random stuff
+        show = True makes boring animations.
+        """
         self.colorBlue = self.colorBlue + self.deltaBlue
         if self.colorBlue > self.maxBlue:
             self.colorBlue = self.maxBlue
@@ -107,39 +116,64 @@ class FlexChainGame:
             if show == True: self.display.show()
 
     def finishIt(self):
+        """ we're done. get us out here
+        but first: show the leader board"""
         self.display.clear_screen([32, 32, 32])
         self.drawBorder((0,0,0),True)
         self.leaderBoard.run_leader_board(self.length, self.display, self.input_control)
 
 
     def hitControl(self, x, y):
+        """
+        check if the flexchain is about to eat an apple, itself or the border.
+        last two aren't good actually
+
+        make a smal step forward if dead
+        (or a big leap for flex-chain-kind)
+        """
         if debugMode == 1: print("hitControl ", x, ",", y)
+
+        #check borders
         if x <= minX or y <= minY or x >= maxX or y >= maxY:
             self.iAmDead()
             return
 
+        #check self-hit
         for i in range(0, self.length):
             if x == self.body[i].x and y == self.body[i].y:
                 self.iAmDead()
                 print("hit body at [", i, "]", x, y)
                 return
 
+        #check if eating an apple
         if x == self.ApplePos.x and y == self.ApplePos.y:
             self.eatApple(x, y)
 
+        #move to the next bit
         self.body.insert(0, Pixel(x, y, (0, 30, 255)))
+        #delete last body segment as if we were moving... haha, what a hoax.
         self.body.pop()
 
     def eatApple(self, x, y):
+        """
+        an apple a day keeps the doctor away
+        (disclaimer: only works on dr. med.)
+        """
         if debugMode == 1: print("yummy, apple!")
-        self.length += 1
+        self.length += 1 #increase length
+        #TODO currently inserting a green apple at the apple sposition to the flexchain body. better just skip deleting the last part of the body once for faster growth
         self.body.insert(0, Pixel(x, y, (0, 255, 255)))
+
+        #congratulations, you've won. maybe
         if self.length == lengthToWin:
             self.iAmWinner()
+
+        #produce more apples
         self.newApple()
         self.drawMe()
 
     def newApple(self):
+        """ apple tree (factory). kind of"""
         if debugMode == 1: print("new Apple...")
         newAppleNotFound = True
         while newAppleNotFound:
@@ -155,6 +189,9 @@ class FlexChainGame:
                 if debugMode == 1: print("... done at ", randX, ",", randY)
 
     def move(self):
+        """
+        move a step forward
+        """
         curX = self.body[0].x
         curY = self.body[0].y
 
@@ -162,6 +199,8 @@ class FlexChainGame:
         newY = curY
 
         if debugMode == 1: print("moving ", self.movementDir)
+
+        #check the direction and get the next field
         if self.movementDir == Dir.UP:
             newY = curY + 1
         elif self.movementDir == Dir.DOWN:
@@ -175,14 +214,21 @@ class FlexChainGame:
         # else:
         # self.running = False
 
+        # check if the next field is valid or an apple. executes step if valid
         self.hitControl(newX, newY)
 
     def colorMe(self, color):
+        """
+        color the flexchain new... red, blue, pink... whatever
+        """
         for i in range(0, self.length):
             self.body[i].col = color
         self.drawBorder(color)
 
     def iAmWinner(self):
+        """
+        i aM tHe bEsT!1!1!
+        """
         self.colorMe((0, 255, 1))
         if debugMode == 1: print("winner")
         self.running = False
@@ -200,6 +246,9 @@ class FlexChainGame:
         self.finishIt()
 
     def iAmDead(self):
+        """
+        Rand oder selbst gefresse. tot. schade.
+        """
         self.colorMe((255, 0, 0))
         self.running = False
         if debugMode == 1: print("crash at", self.body[0].x, ",", self.body[0].y)
@@ -220,6 +269,10 @@ class FlexChainGame:
         self.finishIt()
 
     def drawMe(self):
+        """
+        Zeichnet den Rand, die Score, den Titel, den Apfel und die FlexChain neu
+
+        """
         self.display.clear_screen([0, 0, 0])
         self.drawBorder((255, 255, 255))
         # apple
@@ -240,6 +293,7 @@ class FlexChainGame:
         """
         image = img.imread(os.path.join(self.path, 'images/FlexChainLogo.png'))
         return np.transpose(image[:, :, :3], (1, 0, 2)) * 255
+
 
     def button_up(self):
         self.movementDir = Dir.UP
@@ -267,9 +321,10 @@ class FlexChainGame:
 
         self.display.clear_screen([0, 0, 0])
 
+        #begrüßung anzeigen
         self.display.write_string("WELCOME...", 7, 20, [50, 50, 255])
         self.display.show()
-        self.drawBorder((0,0,0),True)
+        self.drawBorder((0,0,0),True) #(0,0,0),True = bunt und mit effekt
 
         if debugMode == 1: print("hello")
         time.sleep(3.0)
@@ -278,19 +333,26 @@ class FlexChainGame:
         self.display.show()
         time.sleep(1.0)
 
+        #prescaler initialisieren für flüssige eingabe aber langsame bewegung
         prescalerCurrentIncrement = 0
         prescalerIncrementMax = 125 #max speed
         incrementPrescalerLimit = prescalerIncrementMax
         self.movementDir = Dir.STOP
 
         while self.running:
+
+            #prescaler Limit neu setzen anhand der Länge der Schlange
             if self.length - 10 < prescalerIncrementMax:  #increment speed depending on length
                 incrementPrescalerLimit = prescalerIncrementMax - self.length /2
             else:
                 incrementPrescalerLimit = 50
 
+            #prescaler incrementieren
             prescalerCurrentIncrement = prescalerCurrentIncrement + 1
 
+
+            #check input
+            #TODO vergleich mit zu letzt gelaufener richtung (nach 1 schritt) und nicht mit aktuellem Parameter
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if input_control.up_key_pressed() == 1 and self.movementDir != Dir.UP:
@@ -311,6 +373,7 @@ class FlexChainGame:
 
             time.sleep(0.001)
 
+            #prescaler testen und ggf. einen Game-Tick ausführen
             if prescalerCurrentIncrement > incrementPrescalerLimit:
                 if debugMode == 2: print("tick (inc = ",incrementPrescalerLimit,")")
                 self.tick()
@@ -321,4 +384,5 @@ class FlexChainGame:
 
                 prescalerCurrentIncrement = 0
 
+    #ende
     time.sleep(2.0)

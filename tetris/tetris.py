@@ -51,8 +51,8 @@ class Tetris:
         self.sound_rotate = pygame.mixer.Sound('tetris/sound/rotation.wav')
         self.sound_landing = pygame.mixer.Sound('tetris/sound/block_landed.wav')
         self.sound_game_over = pygame.mixer.Sound('tetris/sound/game_over.wav')
-        self.line_clear = pygame.mixer.Sound('tetris/sound/line_clear.wav')
-        self.four_lines_clear = pygame.mixer.Sound('tetris/sound/4_lines.wav')
+        self.sound_line_clear = pygame.mixer.Sound('tetris/sound/line_clear.wav')
+        self.sound_four_lines_clear = pygame.mixer.Sound('tetris/sound/4_lines.wav')
 
     def get_title_image(self):
         """Get the iconic image of the game
@@ -114,9 +114,9 @@ class Tetris:
                     complete_lines = game_board.get_complete_lines()
                     if len(complete_lines):
                         if len(complete_lines) == 4:
-                            pygame.mixer.Sound.play(self.four_lines_clear)
+                            pygame.mixer.Sound.play(self.sound_four_lines_clear)
                         else:
-                            pygame.mixer.Sound.play(self.line_clear)
+                            pygame.mixer.Sound.play(self.sound_line_clear)
                         # animate the deletion of the lines
                         self.delete_lines_animation(game_board, complete_lines)
                         # delete the lines

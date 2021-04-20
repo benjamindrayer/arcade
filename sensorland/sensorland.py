@@ -35,6 +35,7 @@ class SensorLandGame:
         self.mountains = 0
         self.input_control = 0
         self.player_y = GROUND_LEVEL
+        self.sound_jump = pygame.mixer.Sound('sensorland/sound/jump.wav')
 
     def get_title_image(self):
         """Get the iconic image of the game
@@ -98,6 +99,9 @@ class SensorLandGame:
         sky = img.imread('sensorland/images/sky2.png')
         sky = np.transpose(sky, (1, 0, 2)) * 255
 
+        pygame.mixer.music.load('sensorland/sound/theme.mp3')
+        pygame.mixer.music.play(-1, 0.0)
+
         running = True
         jumping = False
         jumping_index = 0
@@ -119,6 +123,8 @@ class SensorLandGame:
                     if keys[pygame.K_LEFT] == 1 and self.player_y == GROUND_LEVEL:
                         jumping = True
                         jumping_index = 0
+                        pygame.mixer.Sound.play(self.sound_jump)
+
             if jumping:
                 self.display.place_sprite(stefan_2, 5, self.player_y)
                 if jumping_index < len(jumping_delta):

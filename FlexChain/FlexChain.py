@@ -29,7 +29,7 @@ maxY = 64-1  #coordinates
 minX = 0     #coordinates
 minY = 12    #last coordinates
 lengthToWin = (maxY-minY)*(maxX-minY)-1  #TODO may be a bit hard to reach.
-debugMode = 0  #enable if you want to get to know stuff. or cheat
+debugMode = 1  #enable if you want to get to know stuff. or cheat
 startLength = 3 #too short?
 if debugMode >= 1: #these aren't the cheats you were looking for
     startLength = 198 #cheat!
@@ -181,14 +181,17 @@ class FlexChainGame:
         """ apple tree (factory). kind of"""
         if debugMode == 1: print("new Apple...")
         newAppleNotFound = True
+
+        #just hit random as often as required without putting the new apple on the body of the flexchain
         while newAppleNotFound:
             hits = 0
             randX = randrange(minX+1,maxX-1)
             randY = randrange(minY+1,maxY-1)
             for i in range(0, self.length):
                 if randX == self.body[i].x and randY == self.body[i].y:
-                    hits = hits +1
-            if hits == 0:
+                    hits = hits +1 #check if the body was hit at least once
+
+            if hits == 0: #and grow an apple if not.
                 newAppleNotFound = False
                 self.ApplePos = Pixel(randX, randY, (255, 0, 0))
                 if debugMode == 1: print("... done at ", randX, ",", randY)
@@ -238,9 +241,12 @@ class FlexChainGame:
         if debugMode == 1: print("winner")
         self.running = False
         self.drawMe()
-        self.display.write_string("WINNER!", 20, 17, [50, 50, 255])
+        self.display.write_string("WINNER", 20, 17, [50, 50, 255])
+        self.display.write_string("WINNER", 20, 24, [50,255, 50])
+        self.display.write_string("CHICKEN", 20, 31, [0, 50, 255])
+        self.display.write_string("DINNER!", 20, 38, [50, 255, 50])
         self.display.show()
-        time.sleep(2.0)
+        time.sleep(4.0)
         for i in range(0, 64):
             g = i * 4
             if g > 255:

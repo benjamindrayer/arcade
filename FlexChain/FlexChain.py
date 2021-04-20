@@ -6,6 +6,7 @@ import time
 import pygame
 from random import randrange
 
+
 class Dir(Enum):
     STOP = 0
     UP = 1
@@ -14,145 +15,205 @@ class Dir(Enum):
     LEFT = 4
     CRASH = 5
 
+
 class Pixel:
     def __init__(self, x, y, col):
         self.x = int(x)
         self.y = int(y)
         self.col = col
 
-maxX = 64
-maxY = 64
-lengthToWin = 20 #maxY*maxX-1
-debug = 0
+
+maxX = 64-1
+maxY = 64-1
+minX = 1
+minY = 12
+lengthToWin = (maxY-minY)*(maxX-minY)-1
+debugMode = 0
+startLength = 3
+if debugMode >= 1:
+    startLength = 198 #more cheats!
+    lengthToWin = startLength+2 #cheat!
+
+
 
 class FlexChainGame:
     def __init__(self):
+        self.path = os.path.dirname(__file__)
+        self.length = 0
+        self.movementDir = Dir.STOP
+        self.display = 0
+        self.input_control = 0
+        self.body = [Pixel(maxX / 2, maxY / 2, (0, 30, 255))]
+        self.ApplePos = 0
+        self.running = True
+        self.colorBlue = 0
+        self.minBlue = 0
+        self.maxBlue = 0
+        self.deltaBlue = 0
         self.reInit()
-
 
     def reInit(self):
         self.path = os.path.dirname(__file__)
-        self.length = 3
-        self.dir = Dir.STOP
+        self.length = startLength
+        self.movementDir = Dir.STOP
         self.display = 0
         self.input_control = 0
-        self.tail = [Pixel(maxX / 2, maxY / 2, (0,30,255))]
+        self.body = [Pixel(maxX / 2, maxY / 2, (0, 30, 255))]
         self.ApplePos = 0
         self.running = True
+        self.colorBlue = 240
+        self.minBlue = 80
+        self.maxBlue = 255
+        self.deltaBlue = 10
 
         for i in range(1, self.length):
-            self.tail.append(Pixel(maxX / 2, maxY / 2 + i, (0,30,255)))
+            self.body.append(Pixel(maxX / 2, maxY / 2 + i, (0, 30, 255)))
 
-        if debug == 1: print("FlexChainGame set-up and ready to go")
+        if debugMode == 1: print("FlexChainGame set-up and ready to go")
 
-    def hitControl(self,x,y):
-        if debug == 1: print("hitControl ",x,",",y)
-        if x < 0 or y < 0 or x>=maxX or y>=maxY:
+    def drawBorder(self, color):
+        self.colorBlue = self.colorBlue + self.deltaBlue
+        if self.colorBlue > self.maxBlue:
+            self.colorBlue = self.maxBlue
+            self.deltaBlue = self.deltaBlue * -1
+        elif self.colorBlue < self.minBlue:
+            self.colorBlue = self.minBlue
+            self.deltaBlue = self.deltaBlue * -1
+
+        #print("blue:",self.colorBlue , " delta:", self.deltaBlue)
+        self.display.write_string("FLEX CHAIN GAME", 1, 1, [0,int(150-self.colorBlue/2),self.colorBlue])
+        self.display.write_string("SCORE:", 1, 7, color)
+        self.display.write_string(str(self.length), 27, 7, color)
+
+        for i in range(minX, maxX):
+            self.display.fill_rectangle(i, i, minY, minY, color)
+            self.display.fill_rectangle(i, i, maxY, maxY, color)
+
+        for i in range(minY, maxY):
+            self.display.fill_rectangle(minX, minX, i, i, color)
+            self.display.fill_rectangle(maxX, maxX, i, i, color)
+
+
+
+    def hitControl(self, x, y):
+        if debugMode == 1: print("hitControl ", x, ",", y)
+        if x <= minX or y <= minY or x >= maxX or y >= maxY:
             self.iAmDead()
             return
 
-        for i in range(0,self.length):
-            if x == self.tail[i].x and y == self.tail[i].y:
+        for i in range(0, self.length):
+            if x == self.body[i].x and y == self.body[i].y:
                 self.iAmDead()
-                print("hit body at [",i,"]",x,y)
+                print("hit body at [", i, "]", x, y)
                 return
 
         if x == self.ApplePos.x and y == self.ApplePos.y:
-            self.eatApple(x,y)
+            self.eatApple(x, y)
 
-        self.tail.insert(0, Pixel(x,y, (0,30,255)))
-        self.tail.pop()
+        self.body.insert(0, Pixel(x, y, (0, 30, 255)))
+        self.body.pop()
 
-    def eatApple(self,x,y):
-        if debug == 1: print("yummy, apple!")
-        self.length+=1
-        self.tail.insert(0,Pixel(x,y,(0,255,255)))
+    def eatApple(self, x, y):
+        if debugMode == 1: print("yummy, apple!")
+        self.length += 1
+        self.body.insert(0, Pixel(x, y, (0, 255, 255)))
         if self.length == lengthToWin:
             self.iAmWinner()
         self.newApple()
         self.drawMe()
 
     def newApple(self):
-        if debug == 1: print("new Apple...")
+        if debugMode == 1: print("new Apple...")
         newAppleNotFound = True
         while newAppleNotFound:
-            randX = randrange(maxX)
-            randY = randrange(maxY)
-            for i in range(0,self.length):
-                if randX == self.tail[i].x and randY == self.tail[i].y:
-                    newAppleNotFound = True
-                else:
-                    newAppleNotFound = False
-                    self.ApplePos = Pixel(randX, randY, (255,0,0))
-                    if debug == 1: print("... done at ",randX,",",randY)
+            hits = 0
+            randX = randrange(minX+1,maxX-1)
+            randY = randrange(minY+1,maxY-1)
+            for i in range(0, self.length):
+                if randX == self.body[i].x and randY == self.body[i].y:
+                    hits = hits +1
+            if hits == 0:
+                newAppleNotFound = False
+                self.ApplePos = Pixel(randX, randY, (255, 0, 0))
+                if debugMode == 1: print("... done at ", randX, ",", randY)
 
     def move(self):
-        curX = self.tail[0].x
-        curY = self.tail[0].y
+        curX = self.body[0].x
+        curY = self.body[0].y
 
         newX = curX
         newY = curY
 
-        if debug == 1: print("moving ",self.dir)
-        if self.dir == Dir.UP:
-            newY = curY+1
-        elif self.dir == Dir.DOWN:
-            newY = curY-1
-        elif self.dir ==  Dir.RIGHT:
-            newX = curX+1
-        elif self.dir ==  Dir.LEFT:
-            newX = curX-1
-        elif self.dir ==  Dir.STOP:
+        if debugMode == 1: print("moving ", self.movementDir)
+        if self.movementDir == Dir.UP:
+            newY = curY + 1
+        elif self.movementDir == Dir.DOWN:
+            newY = curY - 1
+        elif self.movementDir == Dir.RIGHT:
+            newX = curX + 1
+        elif self.movementDir == Dir.LEFT:
+            newX = curX - 1
+        elif self.movementDir == Dir.STOP:
             return
-        #else:
-            #self.running = False
+        # else:
+        # self.running = False
 
         self.hitControl(newX, newY)
 
-
     def colorMe(self, color):
-        for i in range(0,self.length):
-            self.tail[i].col = color
+        for i in range(0, self.length):
+            self.body[i].col = color
+        self.drawBorder(color)
 
     def iAmWinner(self):
-        self.colorMe((0,255,1))
-        if debug == 1: print("winner")
-        self.drawMe()
-        self.display.write_string("WINNER", 13, 10, [50, 50, 255])
-        self.display.show()
-        time.sleep(3.0)
-
-    def iAmDead(self):
-        self.colorMe((255,0,0))
+        self.colorMe((0, 255, 1))
+        if debugMode == 1: print("winner")
         self.running = False
-        if debug == 1: print("crash at",self.tail[0].x, ",",self.tail[0].y)
-        for i in range(0,self.length):
-            if debug == 2: print("tail [",i,"]",self.tail[i].x,",",self.tail[i].y)
-
         self.drawMe()
-        self.display.write_string("YOU DIED", 13, 10, [255, 0, 5])
+        self.display.write_string("WINNER!", 20, 17, [50, 50, 255])
         self.display.show()
         time.sleep(2.0)
-        for i in range(0,64):
-            r = i*4
+        for i in range(0, 64):
+            g = i * 4
+            if g > 255:
+                g = 255
+            self.display.clear_screen([0, g, 0])
+            self.display.show()
+            time.sleep(0.125)
+
+    def iAmDead(self):
+        self.colorMe((255, 0, 0))
+        self.running = False
+        if debugMode == 1: print("crash at", self.body[0].x, ",", self.body[0].y)
+        for i in range(0, self.length):
+            if debugMode == 2: print("tail [", i, "]", self.body[i].x, ",", self.body[i].y)
+
+        self.drawMe()
+        self.display.write_string("s YOU DIED s", 10, 17, [255, 0, 5])
+        self.display.show()
+        time.sleep(2.0)
+        for i in range(0, 64):
+            r = i * 4
             if r > 255:
-                r=255
+                r = 255
             self.display.clear_screen([r, 0, 0])
             self.display.show()
             time.sleep(0.125)
 
     def drawMe(self):
         self.display.clear_screen([0, 0, 0])
+        self.drawBorder((255, 255, 255))
+        # apple
+        self.display.fill_rectangle(self.ApplePos.x, self.ApplePos.x, self.ApplePos.y, self.ApplePos.y,
+                                    self.ApplePos.col)
 
-        #apple
-        self.display.fill_rectangle(self.ApplePos.x, self.ApplePos.x, self.ApplePos.y, self.ApplePos.y , self.ApplePos.col)
-
-        #FlexChain
-        for i in range(0,self.length):
-             if debug == 2: print("drawing [",i,"]",self.tail[i].x,",",self.tail[i].y,"(",self.tail[i].col[0],",",self.tail[i].col[1],",",self.tail[i].col[2],")")
-             self.display.fill_rectangle(self.tail[i].x, self.tail[i].x , self.tail[i].y, self.tail[i].y , self.tail[i].col)
+        # FlexChain
+        for i in range(0, self.length):
+            if debugMode == 2: print("drawing [", i, "]", self.body[i].x, ",", self.body[i].y, "(", self.body[i].col[0],
+                                 ",", self.body[i].col[1], ",", self.body[i].col[2], ")")
+            self.display.fill_rectangle(self.body[i].x, self.body[i].x, self.body[i].y, self.body[i].y,
+                                        self.body[i].col)
         self.display.show()
-
 
     def get_title_image(self):
         """Get the iconic image of the game
@@ -162,16 +223,16 @@ class FlexChainGame:
         return np.transpose(image[:, :, :3], (1, 0, 2)) * 255
 
     def button_up(self):
-        self.dir = Dir.UP
+        self.movementDir = Dir.UP
 
     def button_right(self):
-         self.dir = Dir.RIGHT
+        self.movementDir = Dir.RIGHT
 
     def button_down(self):
-        self.dir = Dir.DOWN
+        self.movementDir = Dir.DOWN
 
     def button_lef(self):
-        self.dir = Dir.LEFT
+        self.movementDir = Dir.LEFT
 
     def tick(self):
         self.move()
@@ -182,7 +243,7 @@ class FlexChainGame:
         self.input_control = input_control
         self.newApple()
 
-        if debug == 1: print("starting")
+        if debugMode == 1: print("starting")
         self.running = True
 
         self.display.clear_screen([0, 0, 0])
@@ -190,56 +251,54 @@ class FlexChainGame:
         self.display.write_string("RUN", 13, 10, [50, 50, 255])
         self.display.show()
 
-        if debug == 1: print("hello")
-        time.sleep(2.0)
+        if debugMode == 1: print("hello")
+        time.sleep(1.0)
 
         self.display.clear_screen([0, 0, 0])
         self.display.show()
         time.sleep(1.0)
 
-        increment = 0
-        inc_max = 125
-        cur_max = inc_max
-        self.dir = Dir.STOP
+        prescalerCurrentIncrement = 0
+        prescalerIncrementMax = 125 #max speed
+        incrementPrescalerLimit = prescalerIncrementMax
+        self.movementDir = Dir.STOP
 
         while self.running:
-            if self.length - 10 < inc_max:
-                cur_max = inc_max - self.length*2
+            if self.length - 10 < prescalerIncrementMax:  #increment speed depending on length
+                incrementPrescalerLimit = prescalerIncrementMax - self.length /2
             else:
-                cur_max = 50
+                incrementPrescalerLimit = 50
 
-            increment=increment+1
+            prescalerCurrentIncrement = prescalerCurrentIncrement + 1
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if input_control.up_key_pressed() == 1:
-                        if debug == 1: print("up")
-                        self.dir = Dir.DOWN
-                    elif input_control.down_key_pressed() == 1 and self.dir != Dir.STOP:
-                        if debug == 1: print("down")
-                        self.dir = Dir.UP
-                    elif input_control.left_key_pressed() == 1:
-                        if debug == 1: print("left")
-                        self.dir = Dir.LEFT
-                    elif input_control.right_key_pressed() == 1:
-                        if debug == 1: print("right")
-                        self.dir = Dir.RIGHT
-                   # else:
-                       # self.running = False
-                       # if debug == 1: print("end")
+                    if input_control.up_key_pressed() == 1 and self.movementDir != Dir.UP:
+                        if debugMode == 1: print("up")
+                        self.movementDir = Dir.DOWN
+                    elif input_control.down_key_pressed() == 1 and self.movementDir != Dir.STOP and self.movementDir != Dir.DOWN:
+                        if debugMode == 1: print("down")
+                        self.movementDir = Dir.UP
+                    elif input_control.left_key_pressed() == 1 and self.movementDir != Dir.RIGHT:
+                        if debugMode == 1: print("left")
+                        self.movementDir = Dir.LEFT
+                    elif input_control.right_key_pressed() == 1 and self.movementDir != Dir.LEFT:
+                        if debugMode == 1: print("right")
+                        self.movementDir = Dir.RIGHT
+                # else:
+                # self.running = False
+                # if debug == 1: print("end")
 
             time.sleep(0.001)
 
-            if increment > cur_max:
-                if debug == 1: print("tick")
+            if prescalerCurrentIncrement > incrementPrescalerLimit:
+                if debugMode == 2: print("tick (inc = ",incrementPrescalerLimit,")")
                 self.tick()
 
-                if debug == 1: print("draw")
+                if debugMode == 2: print("draw")
                 self.drawMe()
                 self.display.show()
 
-                increment = 0
-
-
+                prescalerCurrentIncrement = 0
 
     time.sleep(5.0)

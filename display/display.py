@@ -128,7 +128,7 @@ class Display:
             for j in range(sprite.shape[1]):
                 x = x_anchor + i
                 y = y_anchor + j
-                if 0 <= x < self.size_x and 0 <=y< self.size_y:
+                if 0 <= x < self.size_x and 0 <= y < self.size_y:
                     #Check for transparency
                     if sprite[i, j, 3] > 0:
                         self.image[x, y, :] = sprite[i, j, :3]

@@ -11,9 +11,9 @@ GROUND_LEVEL = 31
 def get_image_scene(position_x, width_x, image_in):
     """Get section of the image
 
-    :param position_x:
-    :param width_x:
-    :param image_in:
+    :param position_x: position of the runner
+    :param width_x: width of the screen
+    :param image_in: input image
     :return:
     """
     image_out = np.zeros((width_x, image_in.shape[1], image_in.shape[2]))
@@ -26,6 +26,60 @@ def get_image_scene(position_x, width_x, image_in):
         image_out[:delta, :, :] = image_in[start:, :, :]
         image_out[delta:, :, :] = image_in[:width_x - delta, :, :]
     return image_out
+
+
+class Element:
+    def __init__(self, sprite, x, y):
+        """Initial element with its sprite and position
+
+        :param sprite:
+        :param x:
+        :param y:
+        """
+        self.sprite = sprite.copy()
+        self.x = x
+        self.y = y
+        self.mask = self.compute_mask(self.sprite)
+
+    def compute_mask(self, sprite):
+        """Compute foreground mask; pixel that are covered by the sprite
+
+        :param sprite: sprite input
+        :return: mask
+        """
+        mask = np.zeros((sprite.shape[0], sprite.shape[1]))
+        indices_fg = sprite[:, :, 3] > 0
+        mask[indices_fg] = 1
+        return mask
+
+    def is_alive(self):
+        """Check if the element is still on the screen or could be removed
+
+        :return:
+        """
+        if self.x + self.sprite.shape[0] < 0:
+            return False
+        return True
+
+    def place_on_collision_map(self, collision_map):
+        """Place the element on the collision map
+
+        :param collision_map:
+        :return:
+        """
+        for x in range(self.mask.shape[0]):
+            for y in range(self.mask.shape[1]):
+                collision_map[x + self.x, y + self.y] += self.mask[x, y]
+
+    def move_relative(self, delta_x, delta_y):
+        """Move Element relative to the current position
+
+        :param delta_x:
+        :param delta_y:
+        :return:
+        """
+        self.x += delta_x
+        self.y += delta_y
 
 
 class SensorLandGame:
@@ -99,9 +153,15 @@ class SensorLandGame:
         sky = img.imread('sensorland/images/sky2.png')
         sky = np.transpose(sky, (1, 0, 2)) * 255
 
+        resistor = img.imread('sensorland/images/resistor.png')
+        resistor = np.transpose(resistor, (1, 0, 2)) * 255
+
         pygame.mixer.music.load('sensorland/sound/theme.mp3')
         pygame.mixer.music.play(-1, 0.0)
 
+        min_peace_time = 40
+        remaining_peace_time = 10
+        obstacles = []
         running = True
         jumping = False
         jumping_index = 0
@@ -109,9 +169,25 @@ class SensorLandGame:
         iteration = 0
         self.player_y = GROUND_LEVEL
         while running:
+            remaining_peace_time -= 1
+            if remaining_peace_time == 0:
+                remaining_peace_time = min_peace_time
+                #Create obstacle
+                obsti = Element(resistor, 71, GROUND_LEVEL+7)
+                obstacles.append(obsti)
+            dead_obstacles = []
+            for obst in obstacles:
+                obst.move_relative(-2, 0)
+                if not obst.is_alive():
+                    dead_obstacles.append(obst)
+            for obst in dead_obstacles:
+                obstacles.remove(obst)
+            # TODO: check for intersection with the player
             self.do_sky(sky, iteration * 1)
             self.do_mountains(mountains, int(iteration * 1))
-            self.do_circuit(circuit, iteration*2)
+            self.do_circuit(circuit, iteration * 2)
+            for obst in obstacles:
+                self.display.place_sprite(obst.sprite, obst.x, obst.y)
             if not jumping:
                 if iteration % 2 == 0:
                     self.display.place_sprite(stefan_0, 5, self.player_y)

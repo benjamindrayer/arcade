@@ -30,6 +30,8 @@ class LeaderBoard:
     def __init__(self, file_name):
         self.file_name = file_name
         self.leader_board = self.load_leader_board()
+        self.fg_color = [255, 255, 255]
+        self.bg_color = [0, 0, 0]
 
     def run_leader_board(self, score, display, input_controls):
         """ Run the leader bord part
@@ -41,7 +43,7 @@ class LeaderBoard:
         index_board = self.insert_score_in_leader_board(score)
         for index, leader in enumerate(self.leader_board):
             message = '{:3s} {:6d}'.format(leader[0], leader[1])
-            display.write_string(message, LEADER_BOARD_X, 18 + index * 8)
+            display.write_string(message, LEADER_BOARD_X, 18 + index * 8, foreground=self.fg_color, background=self.bg_color)
         display.show()
         # 4. Edit mode if score changed
         if index_board >= 0:
@@ -72,9 +74,9 @@ class LeaderBoard:
                 iteration = iteration + 1
                 # Print name
                 if iteration % 2 == 0:
-                    display.write_string(self.leader_board[index_board][0], LEADER_BOARD_X, 18 + index_board * 8)
+                    display.write_string(self.leader_board[index_board][0], LEADER_BOARD_X, 18 + index_board * 8, foreground=self.fg_color, background=self.bg_color)
                 else:
-                    display.write_string('_', LEADER_BOARD_X + 4 * entry_x, 18 + index_board * 8)
+                    display.write_string('_', LEADER_BOARD_X + 4 * entry_x, 18 + index_board * 8, foreground=self.fg_color, background=self.bg_color)
                 display.show()
         # 5. Save file
         self.save_leader_board()

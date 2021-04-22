@@ -4,6 +4,8 @@ import numpy as np
 import os
 import time
 import pygame
+import random
+from leaderboard.leader_board import *
 
 GROUND_LEVEL = 31
 
@@ -78,7 +80,7 @@ def check_collision(player, obstacles, max_x, max_y):
 
 
 class Player:
-    def __init__(self, x, y):
+    def __init__(self, x, y, sprites_running, sprite_jumping, sprite_standing, sprite_dead):
         """
 
         :param x:
@@ -86,16 +88,21 @@ class Player:
         """
         self.parabola = [-8, -6, -4, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 4, 6, 8]
         self.is_jumping = False
+        self.is_dead = False
+        self.is_running = False
         self.parabola_position = 0
         self.x = x
         self.y = y
-        self.sprite_jumping = 0
-        self.sprite_running = []
-        self.sprite_standing = 0
-        self.sprite_dead = 0
-        self.sprite = 0
-        self.mask = np.ones((10, 10))
+        #Load jump sound
         self.sound_jump = pygame.mixer.Sound('sensorland/sound/jump.wav')
+        #Init the sprites
+        self.sprite_jumping = sprite_jumping
+        self.sprite_running = sprites_running
+        self.sprite_standing = sprite_standing
+        self.sprite_dead = sprite_dead
+        self.sprite = sprite_standing
+        #TODO drayebe init the masks for collision detection
+        self.mask = np.ones((10, 10))
 
     def jump(self):
         """
@@ -106,12 +113,23 @@ class Player:
             self.is_jumping = True
             pygame.mixer.Sound.play(self.sound_jump)
 
+    def die(self):
+        """
+
+        :return:
+        """
+        self.is_dead = True
+        self.sprite = self.sprite_dead
+
     def update(self, iteration):
         """
 
         :return:
         """
         # check dead ? dead ?
+        if self.is_dead:
+            self.sprite = self.sprite_dead
+            return
         # if jumping do jump sprite
         if self.is_jumping:
             self.sprite = self.sprite_jumping
@@ -207,6 +225,7 @@ class SensorLandGame:
         """
         self.display = display
         self.input_control = input_control
+        leader_board = LeaderBoard('sensorland/records.txt')
 
         mountains = img.imread('sensorland/images/mountains3.png')
         mountains = np.transpose(mountains, (1, 0, 2)) * 255
@@ -233,22 +252,40 @@ class SensorLandGame:
         led_green = img.imread('sensorland/images/led_green.png')
         led_green = np.transpose(led_green, (1, 0, 2)) * 255
 
-        pygame.mixer.music.load('sensorland/sound/theme.mp3')
-        pygame.mixer.music.play(-1, 0.0)
-
         im_arrow_left = img.imread('sensorland/images/stefan_0.png')
         stefan_0 = np.transpose(im_arrow_left, (1, 0, 2)) * 255
 
         im_arrow_right = img.imread('sensorland/images/stefan_1.png')
         stefan_1 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
 
-        im_arrow_right = img.imread('sensorland/images/stefan_2.png')
-        stefan_2 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
+        stefan_jumping = img.imread('sensorland/images/stefan_jumping.png')
+        stefan_jumping = np.transpose(stefan_jumping, (1, 0, 2)) * 255
+
+        stefan_dead = img.imread('sensorland/images/stefan_dead.png')
+        stefan_dead = np.transpose(stefan_dead, (1, 0, 2)) * 255
+
+        stefan_standing = img.imread('sensorland/images/stefan_standing.png')
+        stefan_standing = np.transpose(stefan_standing, (1, 0, 2)) * 255
 
         # Ready Player 1
-        stefan = Player(5, GROUND_LEVEL)
-        stefan.sprite_jumping = stefan_2
-        stefan.sprite_running = [stefan_0, stefan_1]
+        stefan = Player(5, GROUND_LEVEL, [stefan_0, stefan_1], stefan_jumping, stefan_standing, stefan_dead)
+        #wait for 1st keypress
+        wait_for_start = True
+        while wait_for_start:
+            self.do_sky(sky, 0)
+            self.do_mountains(mountains, 0)
+            self.do_circuit(circuit, 0)
+            self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_UP] == 1:
+                        wait_for_start = False
+            time.sleep(0.1)
+            self.display.show()
+
+        pygame.mixer.music.load('sensorland/sound/theme.mp3')
+        pygame.mixer.music.play(-1, 0.0)
 
         min_peace_time = 40
         remaining_peace_time = 10
@@ -259,12 +296,16 @@ class SensorLandGame:
             remaining_peace_time -= 1
             if remaining_peace_time == 0:
                 remaining_peace_time = min_peace_time
+                obstacle_index = random.randint(0, 4)
                 # Create obstacle
-                obsti = Element(resistor, 71, GROUND_LEVEL + 4)
-#                obsti = Element(capacitor_0, 71, GROUND_LEVEL + 7)
-#                obsti = Element(voltage_regulator, 71, GROUND_LEVEL + 7)
-#                obsti = Element(led_green, 71, GROUND_LEVEL + 7)
-
+                if obstacle_index == 0:
+                    obsti = Element(resistor, 71, GROUND_LEVEL + 4)
+                elif obstacle_index == 1:
+                    obsti = Element(capacitor_0, 71, GROUND_LEVEL + 7)
+                elif obstacle_index == 2:
+                    obsti = Element(voltage_regulator, 71, GROUND_LEVEL + 7)
+                else:
+                    obsti = Element(led_green, 71, GROUND_LEVEL + 7)
                 obstacles.append(obsti)
             dead_obstacles = []
             for obst in obstacles:
@@ -286,10 +327,11 @@ class SensorLandGame:
                         stefan.jump()
             # Move
             stefan.update(iteration)
+            #Check collision
             stefan_is_dead = check_collision(stefan, obstacles, self.display.size_x, self.display.size_y)
             if stefan_is_dead:
+                stefan.die()
                 running = False
-                # TODO select proper sprite
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
 
             iteration = iteration + 1
@@ -298,6 +340,15 @@ class SensorLandGame:
             self.display.write_string("{:8d}".format(iteration), 20, 0, background=None)
             self.display.show()
             time.sleep(0.1)
-        self.display.show()
+        self.display.clear_screen()
+        image = img.imread(os.path.join(self.path, 'images/high_score.png'))
+        image = np.transpose(image[:, :, :3], (1, 0, 2)) * 255
+        self.display.fade_to_image(image)
+        self.display.write_string("HIGH SCORE", 13, 5, [236, 173, 42], background=None)
+        leader_board.fg_color = [0, 255, 255]
+        leader_board.bg_color = None
+        leader_board.run_leader_board(iteration, self.display, self.input_control)
+        time.sleep(1)
+
         time.sleep(3.01)
         pygame.mixer.music.pause()

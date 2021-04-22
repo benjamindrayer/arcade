@@ -28,6 +28,103 @@ def get_image_scene(position_x, width_x, image_in):
     return image_out
 
 
+def compute_mask(sprite):
+    """Compute foreground mask; pixel that are covered by the sprite
+
+    :param sprite: sprite input
+    :return: mask
+    """
+    mask = np.zeros((sprite.shape[0], sprite.shape[1]))
+    indices_fg = sprite[:, :, 3] > 0
+    mask[indices_fg] = 1
+    return mask
+
+
+def add_mask(mask, offset_x, offset_y, field):
+    """
+
+    :param mask:
+    :param offset_x:
+    :param offset_y:
+    :param field:
+    :return:
+    """
+    for xm in range(mask.shape[0]):
+        for ym in range(mask.shape[1]):
+            x = xm + offset_x
+            y = ym + offset_y
+            if 0 <= x < field.shape[0] and 0 <= y < field.shape[1]:
+                field[x, y] += mask[xm, ym]
+
+
+def check_collision(player, obstacles, max_x, max_y):
+    """Check the collision between the player and the list of obstacles in the area
+       0:max_x, 0:max_y
+
+    :param player:
+    :param obstacles:
+    :param max_x:
+    :param max_y:
+    :return:
+    """
+    field = np.zeros((max_x, max_y))
+    add_mask(player.mask, player.x, player.y, field)
+    for obstacle in obstacles:
+        add_mask(obstacle.mask, obstacle.x, obstacle.y, field)
+        max_val = np.max(field[:])
+        if max_val > 1:
+            return True
+    return False
+
+
+class Player:
+    def __init__(self, x, y):
+        """
+
+        :param x:
+        :param y:
+        """
+        self.parabola = [-8, -6, -4, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 4, 6, 8]
+        self.is_jumping = False
+        self.parabola_position = 0
+        self.x = x
+        self.y = y
+        self.sprite_jumping = 0
+        self.sprite_running = []
+        self.sprite_standing = 0
+        self.sprite_dead = 0
+        self.sprite = 0
+        self.mask = np.ones((10, 10))
+        self.sound_jump = pygame.mixer.Sound('sensorland/sound/jump.wav')
+
+    def jump(self):
+        """
+
+        :return:
+        """
+        if not self.is_jumping:
+            self.is_jumping = True
+            pygame.mixer.Sound.play(self.sound_jump)
+
+    def update(self, iteration):
+        """
+
+        :return:
+        """
+        # check dead ? dead ?
+        # if jumping do jump sprite
+        if self.is_jumping:
+            self.sprite = self.sprite_jumping
+            self.y = self.y + self.parabola[self.parabola_position]
+            self.parabola_position += 1
+            if self.parabola_position >= len(self.parabola):
+                self.parabola_position = 0
+                self.is_jumping = False
+        # Animate running
+        else:
+            self.sprite = self.sprite_running[iteration % len(self.sprite_running)]
+
+
 class Element:
     def __init__(self, sprite, x, y):
         """Initial element with its sprite and position
@@ -39,18 +136,7 @@ class Element:
         self.sprite = sprite.copy()
         self.x = x
         self.y = y
-        self.mask = self.compute_mask(self.sprite)
-
-    def compute_mask(self, sprite):
-        """Compute foreground mask; pixel that are covered by the sprite
-
-        :param sprite: sprite input
-        :return: mask
-        """
-        mask = np.zeros((sprite.shape[0], sprite.shape[1]))
-        indices_fg = sprite[:, :, 3] > 0
-        mask[indices_fg] = 1
-        return mask
+        self.mask = compute_mask(self.sprite)
 
     def is_alive(self):
         """Check if the element is still on the screen or could be removed
@@ -60,16 +146,6 @@ class Element:
         if self.x + self.sprite.shape[0] < 0:
             return False
         return True
-
-    def place_on_collision_map(self, collision_map):
-        """Place the element on the collision map
-
-        :param collision_map:
-        :return:
-        """
-        for x in range(self.mask.shape[0]):
-            for y in range(self.mask.shape[1]):
-                collision_map[x + self.x, y + self.y] += self.mask[x, y]
 
     def move_relative(self, delta_x, delta_y):
         """Move Element relative to the current position
@@ -89,7 +165,6 @@ class SensorLandGame:
         self.mountains = 0
         self.input_control = 0
         self.player_y = GROUND_LEVEL
-        self.sound_jump = pygame.mixer.Sound('sensorland/sound/jump.wav')
 
     def get_title_image(self):
         """Get the iconic image of the game
@@ -132,14 +207,6 @@ class SensorLandGame:
         """
         self.display = display
         self.input_control = input_control
-        im_arrow_left = img.imread('sensorland/images/stefan_0.png')
-        stefan_0 = np.transpose(im_arrow_left, (1, 0, 2)) * 255
-
-        im_arrow_right = img.imread('sensorland/images/stefan_1.png')
-        stefan_1 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
-
-        im_arrow_right = img.imread('sensorland/images/stefan_2.png')
-        stefan_2 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
 
         mountains = img.imread('sensorland/images/mountains3.png')
         mountains = np.transpose(mountains, (1, 0, 2)) * 255
@@ -153,27 +220,51 @@ class SensorLandGame:
         sky = img.imread('sensorland/images/sky2.png')
         sky = np.transpose(sky, (1, 0, 2)) * 255
 
+        # enemies
         resistor = img.imread('sensorland/images/resistor.png')
         resistor = np.transpose(resistor, (1, 0, 2)) * 255
 
+        capacitor_0 = img.imread('sensorland/images/capacitor_0.png')
+        capacitor_0 = np.transpose(capacitor_0, (1, 0, 2)) * 255
+
+        voltage_regulator = img.imread('sensorland/images/voltage_regulator.png')
+        voltage_regulator = np.transpose(voltage_regulator, (1, 0, 2)) * 255
+
+        led_green = img.imread('sensorland/images/led_green.png')
+        led_green = np.transpose(led_green, (1, 0, 2)) * 255
+
         pygame.mixer.music.load('sensorland/sound/theme.mp3')
         pygame.mixer.music.play(-1, 0.0)
+
+        im_arrow_left = img.imread('sensorland/images/stefan_0.png')
+        stefan_0 = np.transpose(im_arrow_left, (1, 0, 2)) * 255
+
+        im_arrow_right = img.imread('sensorland/images/stefan_1.png')
+        stefan_1 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
+
+        im_arrow_right = img.imread('sensorland/images/stefan_2.png')
+        stefan_2 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
+
+        # Ready Player 1
+        stefan = Player(5, GROUND_LEVEL)
+        stefan.sprite_jumping = stefan_2
+        stefan.sprite_running = [stefan_0, stefan_1]
 
         min_peace_time = 40
         remaining_peace_time = 10
         obstacles = []
         running = True
-        jumping = False
-        jumping_index = 0
-        jumping_delta = [-8, -6, -4, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 4, 6, 8]
         iteration = 0
-        self.player_y = GROUND_LEVEL
         while running:
             remaining_peace_time -= 1
             if remaining_peace_time == 0:
                 remaining_peace_time = min_peace_time
-                #Create obstacle
-                obsti = Element(resistor, 71, GROUND_LEVEL+7)
+                # Create obstacle
+                obsti = Element(resistor, 71, GROUND_LEVEL + 4)
+#                obsti = Element(capacitor_0, 71, GROUND_LEVEL + 7)
+#                obsti = Element(voltage_regulator, 71, GROUND_LEVEL + 7)
+#                obsti = Element(led_green, 71, GROUND_LEVEL + 7)
+
                 obstacles.append(obsti)
             dead_obstacles = []
             for obst in obstacles:
@@ -182,36 +273,31 @@ class SensorLandGame:
                     dead_obstacles.append(obst)
             for obst in dead_obstacles:
                 obstacles.remove(obst)
-            # TODO: check for intersection with the player
             self.do_sky(sky, iteration * 1)
             self.do_mountains(mountains, int(iteration * 1))
             self.do_circuit(circuit, iteration * 2)
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
-            if not jumping:
-                if iteration % 2 == 0:
-                    self.display.place_sprite(stefan_0, 5, self.player_y)
-                if iteration % 2 == 1:
-                    self.display.place_sprite(stefan_1, 5, self.player_y)
+            # Jump
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     keys = pygame.key.get_pressed()
-                    if keys[pygame.K_LEFT] == 1 and self.player_y == GROUND_LEVEL:
-                        jumping = True
-                        jumping_index = 0
-                        pygame.mixer.Sound.play(self.sound_jump)
+                    if keys[pygame.K_UP] == 1:
+                        stefan.jump()
+            # Move
+            stefan.update(iteration)
+            stefan_is_dead = check_collision(stefan, obstacles, self.display.size_x, self.display.size_y)
+            if stefan_is_dead:
+                running = False
+                # TODO select proper sprite
+            self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
 
-            if jumping:
-                self.display.place_sprite(stefan_2, 5, self.player_y)
-                if jumping_index < len(jumping_delta):
-                    self.player_y += jumping_delta[jumping_index]
-                    jumping_index += 1
-                else:
-                    jumping = False
             iteration = iteration + 1
             # show score
             self.display.write_string("SCORE", 1, 0, background=None)
             self.display.write_string("{:8d}".format(iteration), 20, 0, background=None)
             self.display.show()
             time.sleep(0.1)
-        print("Implement me")
+        self.display.show()
+        time.sleep(3.01)
+        pygame.mixer.music.pause()

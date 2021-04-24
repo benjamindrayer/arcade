@@ -2,7 +2,8 @@ import numpy as np
 import pygame
 import time
 from .simple_fonts import *
-
+from rgbmatrix import RGBMatrix, RGBMatrixOptions
+from PIL import Image
 class Display:
     """Display class
     """
@@ -23,6 +24,27 @@ class Display:
             pygame.init()
             self.scr = pygame.display.set_mode((self.size_x * self.factor, self.size_y * self.factor))
             self.scr.fill((0, 0, 0))
+        options = RGBMatrixOptions()
+        options.rows = 64
+        options.cols = 64
+        options.chain_length = 1
+        options.parallel = 2
+        options.scan_mode = 1
+        options.multiplexing = 0
+        options.hardware_mapping = 'regular'  # If you have an Adafruit HAT: 'adafruit-hat'
+        options.disable_hardware_pulsing = True
+        options.gpio_slowdown = 4
+#        options.limit_refresh_rate_hz = 80
+#        options.row_address_type = self.args.led_row_addr_type
+#        options.multiplexing = self.args.led_multiplexing
+        options.pwm_bits = 11
+        options.brightness = 100
+        options.pwm_lsb_nanoseconds = 130
+#        options.led_rgb_sequence = self.args.led_rgb_sequence
+#        options.pixel_mapper_config = self.args.led_pixel_mapper
+#        options.panel_type = self.args.led_panel_type
+        self.matrix = RGBMatrix(options = options)
+
 
     def set_pixel(self, x, y, color):
         """Set pixel to color
@@ -145,3 +167,6 @@ class Display:
                     pygame.draw.circle(self.scr, color, ((x+0.5) * self.factor, (y+0.5) * self.factor), self.factor/2-1)
 #                    pygame.draw.rect(self.scr, color, pygame.Rect(x* self.factor, y* self.factor, self.factor, self.factor) )
             pygame.display.update()
+#        self.matrix.Clear()
+        tmp = np.flipud(self.image)
+        self.matrix.SetImage(Image.fromarray(tmp.astype('uint8'), 'RGB'), 0, 0)       

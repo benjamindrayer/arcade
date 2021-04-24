@@ -52,7 +52,7 @@ class Tetris:
         self.sound_landing = pygame.mixer.Sound('tetris/sound/block_landed.wav')
         self.sound_game_over = pygame.mixer.Sound('tetris/sound/game_over.wav')
         self.sound_line_clear = pygame.mixer.Sound('tetris/sound/line_clear.wav')
-        self.sound_four_lines_clear = pygame.mixer.Sound('tetris/sound/4_lines.wav')
+        self.sound_four_lines_clear = pygame.mixer.Sound('tetris/sound/line_clear.wav')
 
     def get_title_image(self):
         """Get the iconic image of the game

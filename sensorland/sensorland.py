@@ -10,6 +10,50 @@ from leaderboard.leader_board import *
 GROUND_LEVEL = 31
 
 
+class Circuit:
+    """Class to handle the random circuit of sensor land
+
+    """
+
+    def __init__(self):
+        """
+        Init the circuit
+        """
+        self.elements = []
+        self.max_element_size = 64
+        for i in range(13):
+            element = img.imread('sensorland/images/circuit_{:d}.png'.format(i))
+            self.elements.append(np.transpose(element, (1, 0, 2)) * 255)
+            self.max_element_size = max(self.max_element_size, element.shape[1])
+            self.y = element.shape[0]
+        self.position = 0
+        self.image = np.zeros((self.max_element_size * 3, self.y, 4))
+        self.generate_image()
+
+    def scroll(self, delta=1):
+        """Scroll the image further
+
+        :param delta: scroll by delta steps
+        :return:
+        """
+        if delta>0:
+            self.image[:-delta, :, :] = self.image[delta:, :, :]
+            self.position -= delta
+            if self.position <= 2 * self.max_element_size:
+                self.generate_image()
+
+    def generate_image(self):
+        """Fill the image with random circuit elements
+
+        :return:
+        """
+        while self.position <= 2*self.max_element_size:
+            index = random.randint(0, len(self.elements)-1)
+            new_element = self.elements[index]
+            delta = new_element.shape[0]
+            self.image[self.position:self.position+delta, :, :] = new_element[:,:,:]
+            self.position += delta
+
 def get_image_scene(position_x, width_x, image_in):
     """Get section of the image
 
@@ -93,15 +137,15 @@ class Player:
         self.parabola_position = 0
         self.x = x
         self.y = y
-        #Load jump sound
+        # Load jump sound
         self.sound_jump = pygame.mixer.Sound('sensorland/sound/jump.wav')
-        #Init the sprites
+        # Init the sprites
         self.sprite_jumping = sprite_jumping
         self.sprite_running = sprites_running
         self.sprite_standing = sprite_standing
         self.sprite_dead = sprite_dead
         self.sprite = sprite_standing
-        #TODO drayebe init the masks for collision detection
+        # TODO drayebe init the masks for collision detection
         self.mask = np.ones((10, 10))
 
     def jump(self):
@@ -205,7 +249,8 @@ class SensorLandGame:
 
         :return:
         """
-        m = get_image_scene(position, self.display.size_x, circuit)
+        circuit.scroll(position)
+        m = circuit.image[0:64, :, :]
         self.display.place_sprite(m, 0, 46)
 
     def do_sky(self, sky, iteration):
@@ -229,9 +274,6 @@ class SensorLandGame:
 
         mountains = img.imread('sensorland/images/mountains3.png')
         mountains = np.transpose(mountains, (1, 0, 2)) * 255
-
-        circuit = img.imread('sensorland/images/circuit.png')
-        circuit = np.transpose(circuit, (1, 0, 2)) * 255
 
         sun = img.imread('sensorland/images/sun.png')
         sun = np.transpose(sun, (1, 0, 2)) * 255
@@ -266,10 +308,10 @@ class SensorLandGame:
 
         stefan_standing = img.imread('sensorland/images/stefan_standing.png')
         stefan_standing = np.transpose(stefan_standing, (1, 0, 2)) * 255
-
+        circuit = Circuit()
         # Ready Player 1
         stefan = Player(5, GROUND_LEVEL, [stefan_0, stefan_1], stefan_jumping, stefan_standing, stefan_dead)
-        #wait for 1st keypress
+        # wait for 1st keypress
         wait_for_start = True
         while wait_for_start:
             self.do_sky(sky, 0)
@@ -316,7 +358,7 @@ class SensorLandGame:
                 obstacles.remove(obst)
             self.do_sky(sky, iteration * 1)
             self.do_mountains(mountains, int(iteration * 1))
-            self.do_circuit(circuit, iteration * 2)
+            self.do_circuit(circuit, 2)
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
@@ -327,7 +369,7 @@ class SensorLandGame:
                         stefan.jump()
             # Move
             stefan.update(iteration)
-            #Check collision
+            # Check collision
             stefan_is_dead = check_collision(stefan, obstacles, self.display.size_x, self.display.size_y)
             if stefan_is_dead:
                 stefan.die()

@@ -15,3 +15,13 @@ The submodule for the rgb lib was added the following way
 ```
 git submodule add -b master https://github.com/hzeller/rpi-rgb-led-matrix
 ```
+After checking out the repo You have tp init and update the submodule
+```
+git submodule init
+git submodule update
+```
+Then gp to the rpi-rgb-led-matrix directory and compile
+```
+cd rpi-rgb-led-matrix
+make -C examples-api-use
+```

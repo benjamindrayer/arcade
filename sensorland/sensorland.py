@@ -21,7 +21,7 @@ class Circuit:
         """
         self.elements = []
         self.max_element_size = 64
-        for i in range(13):
+        for i in range(17):
             element = img.imread('sensorland/images/circuit_{:d}.png'.format(i))
             self.elements.append(np.transpose(element, (1, 0, 2)) * 255)
             self.max_element_size = max(self.max_element_size, element.shape[1])

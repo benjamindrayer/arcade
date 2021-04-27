@@ -26,7 +26,7 @@ im_arrow_left = np.transpose(im_arrow_left, (1, 0, 2)) * 255
 im_arrow_right = img.imread('images/right_arrow.png')
 im_arrow_right = np.transpose(im_arrow_right, (1, 0, 2)) * 255
 
-screen = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT)
+screen = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, display_type=DISPLAY_TYPE_SCREEN)
 pygame.init()
 pygame.display.set_caption('Stefan')
 

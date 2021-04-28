@@ -8,6 +8,17 @@ import random
 from leaderboard.leader_board import *
 
 GROUND_LEVEL = 31
+NUMBER_OF_CIRCUIT_ELEMENTS = 23     #Number of parts to combine the circuits
+
+
+def load_and_transpose_image(path_to_image):
+    """Load and transpose image, scale it to range 0,...,255
+
+    :param path_to_image: path to image
+    :return:
+    """
+    image_raw = img.imread(path_to_image)
+    return np.transpose(image_raw, (1, 0, 2)) * 255
 
 
 class Circuit:
@@ -21,11 +32,11 @@ class Circuit:
         """
         self.elements = []
         self.max_element_size = 64
-        for i in range(17):
-            element = img.imread('sensorland/images/circuit_{:d}.png'.format(i))
-            self.elements.append(np.transpose(element, (1, 0, 2)) * 255)
-            self.max_element_size = max(self.max_element_size, element.shape[1])
-            self.y = element.shape[0]
+        for i in range(NUMBER_OF_CIRCUIT_ELEMENTS):
+            element = load_and_transpose_image('sensorland/images/circuit_{:d}.png'.format(i))
+            self.elements.append(element)
+            self.max_element_size = max(self.max_element_size, element.shape[0])
+            self.y = element.shape[1]
         self.position = 0
         self.image = np.zeros((self.max_element_size * 3, self.y, 4))
         self.generate_image()
@@ -187,6 +198,19 @@ class Player:
             self.sprite = self.sprite_running[iteration % len(self.sprite_running)]
 
 
+def create_stefan():
+    """ Function that initializes Stefan
+
+    :return: Player Stefan
+    """
+    stefan_0 = load_and_transpose_image('sensorland/images/stefan_0.png')
+    stefan_1 = load_and_transpose_image('sensorland/images/stefan_1.png')
+    stefan_jumping = load_and_transpose_image('sensorland/images/stefan_jumping.png')
+    stefan_dead = load_and_transpose_image('sensorland/images/stefan_dead.png')
+    stefan_standing = load_and_transpose_image('sensorland/images/stefan_standing.png')
+    return Player(5, GROUND_LEVEL, [stefan_0, stefan_1], stefan_jumping, stefan_standing, stefan_dead)
+
+
 class Element:
     def __init__(self, sprite, x, y):
         """Initial element with its sprite and position
@@ -294,23 +318,9 @@ class SensorLandGame:
         led_green = img.imread('sensorland/images/led_green.png')
         led_green = np.transpose(led_green, (1, 0, 2)) * 255
 
-        im_arrow_left = img.imread('sensorland/images/stefan_0.png')
-        stefan_0 = np.transpose(im_arrow_left, (1, 0, 2)) * 255
-
-        im_arrow_right = img.imread('sensorland/images/stefan_1.png')
-        stefan_1 = np.transpose(im_arrow_right, (1, 0, 2)) * 255
-
-        stefan_jumping = img.imread('sensorland/images/stefan_jumping.png')
-        stefan_jumping = np.transpose(stefan_jumping, (1, 0, 2)) * 255
-
-        stefan_dead = img.imread('sensorland/images/stefan_dead.png')
-        stefan_dead = np.transpose(stefan_dead, (1, 0, 2)) * 255
-
-        stefan_standing = img.imread('sensorland/images/stefan_standing.png')
-        stefan_standing = np.transpose(stefan_standing, (1, 0, 2)) * 255
         circuit = Circuit()
         # Ready Player 1
-        stefan = Player(5, GROUND_LEVEL, [stefan_0, stefan_1], stefan_jumping, stefan_standing, stefan_dead)
+        stefan = create_stefan()
         # wait for 1st keypress
         wait_for_start = True
         while wait_for_start:
@@ -341,13 +351,13 @@ class SensorLandGame:
                 obstacle_index = random.randint(0, 4)
                 # Create obstacle
                 if obstacle_index == 0:
-                    obsti = Element(resistor, 71, GROUND_LEVEL + 4)
+                    obsti = Element(resistor, 70, GROUND_LEVEL + 4)
                 elif obstacle_index == 1:
                     obsti = Element(capacitor_0, 71, GROUND_LEVEL + 7)
                 elif obstacle_index == 2:
-                    obsti = Element(voltage_regulator, 71, GROUND_LEVEL + 7)
+                    obsti = Element(voltage_regulator, 70, GROUND_LEVEL + 7)
                 else:
-                    obsti = Element(led_green, 71, GROUND_LEVEL + 7)
+                    obsti = Element(led_green, 69, GROUND_LEVEL + 5)
                 obstacles.append(obsti)
             dead_obstacles = []
             for obst in obstacles:

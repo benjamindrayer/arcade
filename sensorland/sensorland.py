@@ -141,7 +141,7 @@ class Player:
         :param x:
         :param y:
         """
-        self.parabola = [-8, -6, -4, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 4, 6, 8]
+        self.parabola = [-8, -6, -4, -2, -1, -1, -1, -1, 0, 0, 1, 1, 1, 1, 2, 4, 6, 8]
         self.is_jumping = False
         self.is_dead = False
         self.is_running = False
@@ -414,9 +414,9 @@ class SensorLandGame:
 
         time.sleep(1)
         self.display.clear_screen()
-        image = img.imread(os.path.join(self.path, 'images/high_score.png'))
-        image = np.transpose(image[:, :, :3], (1, 0, 2)) * 255
-        self.display.fade_to_image(image)
+        score_image = img.imread(os.path.join(self.path, 'images/high_score.png'))
+        score_image = np.transpose(score_image[:, :, :3], (1, 0, 2)) * 255
+        self.display.fade_to_image(score_image)
         self.display.write_string("HIGH SCORE", 13, 5, [236, 173, 42], background=None)
         leader_board.fg_color = [0, 255, 255]
         leader_board.bg_color = None

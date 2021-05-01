@@ -47,11 +47,13 @@ class LeaderBoard:
         display.show()
         # 4. Edit mode if score changed
         if index_board >= 0:
+            image_copy = display.image.copy()
             entry_x = 0
             running = True
             iteration = 0
             while running:
                 pygame.time.delay(100)
+                display.show_image(image_copy)
                 char_name = list(self.leader_board[index_board][0])
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

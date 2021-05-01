@@ -157,8 +157,10 @@ class Player:
         self.sprite_standing = sprite_standing
         self.sprite_dead = sprite_dead
         self.sprite = sprite_standing
-        # TODO drayebe init the masks for collision detection
-        self.mask = np.ones((10, 10))
+        # Init the masks
+        self.mask_jumping = compute_mask(self.sprite_jumping)
+        self.mask_running = [compute_mask(sprite) for sprite in self.sprite_running]
+        self.mask = self.mask_running[self.sprite_running_id]
 
     def jump(self):
         """
@@ -189,6 +191,7 @@ class Player:
         # if jumping do jump sprite
         if self.is_jumping:
             self.sprite = self.sprite_jumping
+            self.mask = self.mask_jumping
             self.y = self.y + self.parabola[self.parabola_position]
             self.parabola_position += 1
             if self.parabola_position >= len(self.parabola):
@@ -199,6 +202,7 @@ class Player:
             if iteration % 5 == 0:
                 self.sprite_running_id = (self.sprite_running_id + 1) % len(self.sprite_running)
             self.sprite = self.sprite_running[self.sprite_running_id]
+            self.mask = self.mask_running[self.sprite_running_id]
 
 
 def create_stefan():
@@ -252,7 +256,7 @@ def get_obstacle():
 
     :return: An obstacle
     """
-    n_obstacles = 4
+    n_obstacles = 5
     obstacle_id = random.randint(0, n_obstacles-1)
     if obstacle_id == 0:
         image = load_and_transpose_image('sensorland/images/resistor.png')
@@ -263,6 +267,9 @@ def get_obstacle():
     elif obstacle_id == 2:
         image = load_and_transpose_image('sensorland/images/voltage_regulator.png')
         spawn_pos = [70, 38]
+    elif obstacle_id == 3:
+        image = load_and_transpose_image('sensorland/images/led_red.png')
+        spawn_pos = [68, 36]
     else:
         image = load_and_transpose_image('sensorland/images/led_green.png')
         spawn_pos = [68, 36]
@@ -281,7 +288,7 @@ class SensorLandGame:
         """Get the iconic image of the game
 
         """
-        im = img.imread(os.path.join(self.path, 'images/stefan_in_sensor_land.png'))
+        im = img.imread('sensorland/images/stefan_in_sensor_land.png')
         image = np.transpose(im[:, :, :3], (1, 0, 2)) * 255
         return image
 
@@ -405,6 +412,7 @@ class SensorLandGame:
             self.display.show()
             time.sleep(0.02)
 
+        time.sleep(1)
         self.display.clear_screen()
         image = img.imread(os.path.join(self.path, 'images/high_score.png'))
         image = np.transpose(image[:, :, :3], (1, 0, 2)) * 255

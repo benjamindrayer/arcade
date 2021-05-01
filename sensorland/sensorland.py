@@ -153,6 +153,7 @@ class Player:
         # Init the sprites
         self.sprite_jumping = sprite_jumping
         self.sprite_running = sprites_running
+        self.sprite_running_id = 0
         self.sprite_standing = sprite_standing
         self.sprite_dead = sprite_dead
         self.sprite = sprite_standing
@@ -195,7 +196,9 @@ class Player:
                 self.is_jumping = False
         # Animate running
         else:
-            self.sprite = self.sprite_running[iteration % len(self.sprite_running)]
+            if iteration % 5 == 0:
+                self.sprite_running_id = (self.sprite_running_id + 1) % len(self.sprite_running)
+            self.sprite = self.sprite_running[self.sprite_running_id]
 
 
 def create_stefan():
@@ -243,6 +246,7 @@ class Element:
         self.x += delta_x
         self.y += delta_y
 
+
 def get_obstacle():
     """Get a new obstacle
 
@@ -252,13 +256,13 @@ def get_obstacle():
     obstacle_id = random.randint(0, n_obstacles-1)
     if obstacle_id == 0:
         image = load_and_transpose_image('sensorland/images/resistor.png')
-        spawn_pos = [69, 38]
+        spawn_pos = [69, 35]
     elif obstacle_id == 1:
         image = load_and_transpose_image('sensorland/images/capacitor_0.png')
         spawn_pos = [69, 38]
     elif obstacle_id == 2:
         image = load_and_transpose_image('sensorland/images/voltage_regulator.png')
-        spawn_pos = [70, 35]
+        spawn_pos = [70, 38]
     else:
         image = load_and_transpose_image('sensorland/images/led_green.png')
         spawn_pos = [68, 36]
@@ -320,12 +324,8 @@ class SensorLandGame:
         mountains = img.imread('sensorland/images/mountains3.png')
         mountains = np.transpose(mountains, (1, 0, 2)) * 255
 
-        sun = img.imread('sensorland/images/sun.png')
-        sun = np.transpose(sun, (1, 0, 2)) * 255
-
         sky = img.imread('sensorland/images/sky2.png')
         sky = np.transpose(sky, (1, 0, 2)) * 255
-
 
         circuit = Circuit()
         # Ready Player 1
@@ -353,6 +353,8 @@ class SensorLandGame:
         obstacles = []
         running = True
         iteration = 0
+        speed = 2
+        #Game Loop
         while running:
             remaining_peace_time -= 1
             if remaining_peace_time == 0:
@@ -361,14 +363,14 @@ class SensorLandGame:
                 obstacles.append(obstacle)
             dead_obstacles = []
             for obst in obstacles:
-                obst.move_relative(-2, 0)
+                obst.move_relative(-speed, 0)
                 if not obst.is_alive():
                     dead_obstacles.append(obst)
             for obst in dead_obstacles:
                 obstacles.remove(obst)
             self.do_sky(sky, iteration * 1)
             self.do_mountains(mountains, int(iteration * 1))
-            self.do_circuit(circuit, 2)
+            self.do_circuit(circuit, speed)
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
@@ -385,13 +387,24 @@ class SensorLandGame:
                 stefan.die()
                 running = False
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
+            if iteration < 1000:
+                iteration = iteration + 1
+            elif 1000 <= iteration < 2000:
+                iteration = iteration + 2
+                speed = 3
+            elif 2000 <= iteration < 10000:
+                iteration = iteration + 3
+                speed = 4
+            else:
+                iteration = iteration + 4
+                speed = 5
 
-            iteration = iteration + 1
             # show score
             self.display.write_string("SCORE", 1, 0, background=None)
             self.display.write_string("{:8d}".format(iteration), 20, 0, background=None)
             self.display.show()
-            time.sleep(0.1)
+            time.sleep(0.02)
+
         self.display.clear_screen()
         image = img.imread(os.path.join(self.path, 'images/high_score.png'))
         image = np.transpose(image[:, :, :3], (1, 0, 2)) * 255

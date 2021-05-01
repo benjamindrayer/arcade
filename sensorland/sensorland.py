@@ -243,6 +243,27 @@ class Element:
         self.x += delta_x
         self.y += delta_y
 
+def get_obstacle():
+    """Get a new obstacle
+
+    :return: An obstacle
+    """
+    n_obstacles = 4
+    obstacle_id = random.randint(0, n_obstacles-1)
+    if obstacle_id == 0:
+        image = load_and_transpose_image('sensorland/images/resistor.png')
+        spawn_pos = [69, 38]
+    elif obstacle_id == 1:
+        image = load_and_transpose_image('sensorland/images/capacitor_0.png')
+        spawn_pos = [69, 38]
+    elif obstacle_id == 2:
+        image = load_and_transpose_image('sensorland/images/voltage_regulator.png')
+        spawn_pos = [70, 35]
+    else:
+        image = load_and_transpose_image('sensorland/images/led_green.png')
+        spawn_pos = [68, 36]
+    return Element(image, spawn_pos[0], spawn_pos[1])
+
 
 class SensorLandGame:
     def __init__(self):
@@ -305,18 +326,6 @@ class SensorLandGame:
         sky = img.imread('sensorland/images/sky2.png')
         sky = np.transpose(sky, (1, 0, 2)) * 255
 
-        # enemies
-        resistor = img.imread('sensorland/images/resistor.png')
-        resistor = np.transpose(resistor, (1, 0, 2)) * 255
-
-        capacitor_0 = img.imread('sensorland/images/capacitor_0.png')
-        capacitor_0 = np.transpose(capacitor_0, (1, 0, 2)) * 255
-
-        voltage_regulator = img.imread('sensorland/images/voltage_regulator.png')
-        voltage_regulator = np.transpose(voltage_regulator, (1, 0, 2)) * 255
-
-        led_green = img.imread('sensorland/images/led_green.png')
-        led_green = np.transpose(led_green, (1, 0, 2)) * 255
 
         circuit = Circuit()
         # Ready Player 1
@@ -348,17 +357,8 @@ class SensorLandGame:
             remaining_peace_time -= 1
             if remaining_peace_time == 0:
                 remaining_peace_time = min_peace_time
-                obstacle_index = random.randint(0, 4)
-                # Create obstacle
-                if obstacle_index == 0:
-                    obsti = Element(resistor, 70, GROUND_LEVEL + 4)
-                elif obstacle_index == 1:
-                    obsti = Element(capacitor_0, 71, GROUND_LEVEL + 7)
-                elif obstacle_index == 2:
-                    obsti = Element(voltage_regulator, 70, GROUND_LEVEL + 7)
-                else:
-                    obsti = Element(led_green, 69, GROUND_LEVEL + 5)
-                obstacles.append(obsti)
+                obstacle = get_obstacle()
+                obstacles.append(obstacle)
             dead_obstacles = []
             for obst in obstacles:
                 obst.move_relative(-2, 0)
@@ -401,6 +401,6 @@ class SensorLandGame:
         leader_board.bg_color = None
         leader_board.run_leader_board(iteration, self.display, self.input_control)
         time.sleep(1)
-
+        #todo wait for keypressed
         time.sleep(3.01)
         pygame.mixer.music.pause()

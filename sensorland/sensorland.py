@@ -9,6 +9,15 @@ from leaderboard.leader_board import *
 
 GROUND_LEVEL = 31
 NUMBER_OF_CIRCUIT_ELEMENTS = 23     #Number of parts to combine the circuits
+#Values for the color transformation of the circuit
+CIRCUIT_RED_VALUES = [9, 126, 210]
+CIRCUIT_TARGET_VALUES = [[[9, 94, 42], [126, 152, 63], [210, 192, 42]],
+                         [[24, 94, 213], [126, 152, 63], [210, 192, 42]],
+                         [[213, 64, 24], [126, 152, 63], [210, 192, 42]],
+                         [[0, 0, 0], [126, 152, 63], [210, 192, 42]],
+                         [[213, 24, 148], [126, 152, 63], [210, 192, 42]],
+                         [[9, 94, 42], [126, 152, 63], [210, 192, 42]]
+                         ]
 
 
 def load_and_transpose_image(path_to_image):
@@ -19,6 +28,26 @@ def load_and_transpose_image(path_to_image):
     """
     image_raw = img.imread(path_to_image)
     return np.transpose(image_raw, (1, 0, 2)) * 255
+
+
+def transform_color(image, red_values, target_values):
+    """Do a color transformation of an image based on its red values
+    It would be better if the image was gray-scale and we could color
+    it with the uniqe gray values, but Wunschkonzert ist Mittwochs ;-)
+
+    :param image: original image
+    :param red_values: key values
+    :param target_values: triplets that hav the soecified red value are colored with
+                          these values
+    :return: colorized image
+    """
+    image_transformed = image.copy()
+    image_red = image[:, :, 0]
+    for key, target in zip(red_values, target_values):
+        image_transformed[:, :, 0][image_red == key] = target[0]
+        image_transformed[:, :, 1][image_red == key] = target[1]
+        image_transformed[:, :, 2][image_red == key] = target[2]
+    return image_transformed
 
 
 class Circuit:
@@ -277,7 +306,7 @@ def get_obstacle():
 
 SENSORLAND_SPEED = [2, 3, 4, 5, 6, 7]
 SENSORLAND_ITERATION_INC = [1, 2, 3, 4, 5, 6]
-SENSORLAND_END_OF_ROAD = [200, 2000, 5000, 10000, 20000, 50000]
+SENSORLAND_END_OF_ROAD = [1000, 2000, 5000, 10000, 20000, 50000]
 
 class SensorLandGame:
     def __init__(self):
@@ -305,13 +334,14 @@ class SensorLandGame:
         m = get_image_scene(position, self.display.size_x, mountains)
         self.display.place_sprite(m, 0, 21)
 
-    def do_circuit(self, circuit, position):
+    def do_circuit(self, rel_movement, level_id=0):
         """Move the circuit
 
         :return:
         """
-        circuit.scroll(position)
-        m = circuit.image[0:64, :, :]
+        self.circuit.scroll(rel_movement)
+        m = self.circuit.image[0:64, :, :]
+        m = transform_color(m, CIRCUIT_RED_VALUES, CIRCUIT_TARGET_VALUES[level_id])
         self.display.place_sprite(m, 0, 46)
 
     def do_sky(self, sky, iteration):
@@ -366,7 +396,7 @@ class SensorLandGame:
                 obstacles.remove(obst)
             self.do_sky(sky, iteration * 1)
             self.do_mountains(mountains, int(iteration * 1))
-            self.do_circuit(self.circuit, speed)
+            self.do_circuit(speed, level_id)
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
@@ -420,7 +450,7 @@ class SensorLandGame:
         while wait_for_start:
             self.do_sky(sky, 0)
             self.do_mountains(mountains, 0)
-            self.do_circuit(self.circuit, 0)
+            self.do_circuit(0)
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:

@@ -369,13 +369,13 @@ class SensorLandGame:
         sky = img.imread('sensorland/images/sky2.png')
         sky = np.transpose(sky, (1, 0, 2)) * 255
         stefan = create_stefan()
-        min_peace_time = 40
-        remaining_peace_time = 40
-        obstacles = []
-        running = True
         speed = SENSORLAND_SPEED[level_id]
         iteration_increment = SENSORLAND_ITERATION_INC[level_id]
         level_end = SENSORLAND_END_OF_ROAD[level_id]
+        min_peace_time = 40
+        remaining_peace_time = 40 * iteration_increment
+        obstacles = []
+        running = True
         move_pixels_remainder = 0
         #Game Loop
         while running:

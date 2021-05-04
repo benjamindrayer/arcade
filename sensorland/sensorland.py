@@ -12,12 +12,15 @@ NUMBER_OF_CIRCUIT_ELEMENTS = 23     #Number of parts to combine the circuits
 #Values for the color transformation of the circuit
 CIRCUIT_RED_VALUES = [9, 126, 210]
 CIRCUIT_TARGET_VALUES = [[[9, 94, 42], [126, 152, 63], [210, 192, 42]],
-                         [[24, 94, 213], [126, 152, 63], [210, 192, 42]],
+                         [[2, 45, 213], [126, 152, 63], [210, 192, 42]],
                          [[213, 64, 24], [126, 152, 63], [210, 192, 42]],
                          [[0, 0, 0], [126, 152, 63], [210, 192, 42]],
                          [[213, 24, 148], [126, 152, 63], [210, 192, 42]],
                          [[9, 94, 42], [126, 152, 63], [210, 192, 42]]
                          ]
+SENSORLAND_SPEED = [2, 2.5, 3, 3.5, 4, 4.5]
+SENSORLAND_ITERATION_INC = [1, 2, 2, 3, 3, 4]
+SENSORLAND_END_OF_ROAD = [1000, 2000, 3000, 4000, 5000, 50000]
 
 
 def load_and_transpose_image(path_to_image):
@@ -304,9 +307,6 @@ def get_obstacle():
         spawn_pos = [68, 36]
     return Element(image, spawn_pos[0], spawn_pos[1])
 
-SENSORLAND_SPEED = [2, 3, 4, 5, 6, 7]
-SENSORLAND_ITERATION_INC = [1, 2, 3, 4, 5, 6]
-SENSORLAND_END_OF_ROAD = [1000, 2000, 5000, 10000, 20000, 50000]
 
 class SensorLandGame:
     def __init__(self):
@@ -351,8 +351,8 @@ class SensorLandGame:
         :param iteration:
         :return:
         """
-        x = int(32 + np.cos(iteration / 60) * 32)
-        y = int(32 + np.sin(iteration / 60) * 32)
+        x = int(32 + np.cos(iteration / 120) * 32)
+        y = int(32 + np.sin(iteration / 120) * 32)
         self.display.show_image(sky[x:x + 64, y:y + 64, :])
 
     def do_level(self, level_id):
@@ -370,33 +370,36 @@ class SensorLandGame:
         sky = np.transpose(sky, (1, 0, 2)) * 255
         stefan = create_stefan()
         min_peace_time = 40
-        remaining_peace_time = 10
+        remaining_peace_time = 40
         obstacles = []
         running = True
-        iteration = 0
         speed = SENSORLAND_SPEED[level_id]
         iteration_increment = SENSORLAND_ITERATION_INC[level_id]
         level_end = SENSORLAND_END_OF_ROAD[level_id]
+        move_pixels_remainder = 0
         #Game Loop
         while running:
             remaining_peace_time -= 1
-            remaining_level = level_end-iteration
+            remaining_level = level_end-self.score
+            move_pixels_total = move_pixels_remainder + speed
+            move_pixels_integer = int(move_pixels_total)
+            move_pixels_remainder = move_pixels_total - move_pixels_integer
             if remaining_level <= 0:
                 running = False
             if remaining_peace_time == 0 and remaining_level > (100 * iteration_increment):
-                remaining_peace_time = min_peace_time
+                remaining_peace_time = random.randint(min_peace_time, 2*min_peace_time)
                 obstacle = get_obstacle()
                 obstacles.append(obstacle)
             dead_obstacles = []
             for obst in obstacles:
-                obst.move_relative(-speed, 0)
+                obst.move_relative(-move_pixels_integer, 0)
                 if not obst.is_alive():
                     dead_obstacles.append(obst)
             for obst in dead_obstacles:
                 obstacles.remove(obst)
-            self.do_sky(sky, iteration * 1)
-            self.do_mountains(mountains, int(iteration * 1))
-            self.do_circuit(speed, level_id)
+            self.do_sky(sky, self.score * 1)
+            self.do_mountains(mountains, int(self.score * 1))
+            self.do_circuit(move_pixels_integer, level_id)
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
@@ -406,7 +409,7 @@ class SensorLandGame:
                     if keys[pygame.K_UP] == 1:
                         stefan.jump()
             # Move
-            stefan.update(iteration)
+            stefan.update(self.score)
             # Check collision
             stefan_is_dead = check_collision(stefan, obstacles, self.display.size_x, self.display.size_y)
             if stefan_is_dead:
@@ -414,7 +417,6 @@ class SensorLandGame:
                 running = False
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
 
-            iteration += iteration_increment
             self.score += iteration_increment
             # show score
             self.display.write_string("SCORE", 1, 0, background=None)
@@ -464,9 +466,10 @@ class SensorLandGame:
         pygame.mixer.music.play(-1, 0.0)
 
         #Execute the different levelz
-        alive = self.do_level(level_id=0)
-        if alive:
-            alive = self.do_level(level_id=1)
+        for level_id in range(6):
+            alive = self.do_level(level_id=level_id)
+            if not alive:
+                break
 
         time.sleep(1)
         self.display.clear_screen()

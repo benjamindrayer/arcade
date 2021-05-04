@@ -275,6 +275,9 @@ def get_obstacle():
         spawn_pos = [68, 36]
     return Element(image, spawn_pos[0], spawn_pos[1])
 
+SENSORLAND_SPEED = [2, 3, 4, 5, 6, 7]
+SENSORLAND_ITERATION_INC = [1, 2, 3, 4, 5, 6]
+SENSORLAND_END_OF_ROAD = [200, 2000, 5000, 10000, 20000, 50000]
 
 class SensorLandGame:
     def __init__(self):
@@ -283,6 +286,8 @@ class SensorLandGame:
         self.mountains = 0
         self.input_control = 0
         self.player_y = GROUND_LEVEL
+        self.circuit = Circuit()
+        self.score = 0
 
     def get_title_image(self):
         """Get the iconic image of the game
@@ -320,51 +325,35 @@ class SensorLandGame:
         y = int(32 + np.sin(iteration / 60) * 32)
         self.display.show_image(sky[x:x + 64, y:y + 64, :])
 
-    def run_game(self, display, input_control):
-        """Run the Game
+    def do_level(self, level_id):
+        """Execute a certain level, the speed etc. is configured above and
+        accessed via the level id
 
+        :param level_id: id of the currenct level
+        :return: True -> Stefan is still running
+                 False -> Stefan crushed with sth.
         """
-        self.display = display
-        self.input_control = input_control
-        leader_board = LeaderBoard('sensorland/records.txt')
-
+        # Ready Player 1
         mountains = img.imread('sensorland/images/mountains3.png')
         mountains = np.transpose(mountains, (1, 0, 2)) * 255
-
         sky = img.imread('sensorland/images/sky2.png')
         sky = np.transpose(sky, (1, 0, 2)) * 255
-
-        circuit = Circuit()
-        # Ready Player 1
         stefan = create_stefan()
-        # wait for 1st keypress
-        wait_for_start = True
-        while wait_for_start:
-            self.do_sky(sky, 0)
-            self.do_mountains(mountains, 0)
-            self.do_circuit(circuit, 0)
-            self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    keys = pygame.key.get_pressed()
-                    if keys[pygame.K_UP] == 1:
-                        wait_for_start = False
-            time.sleep(0.1)
-            self.display.show()
-
-        pygame.mixer.music.load('sensorland/sound/theme.mp3')
-        pygame.mixer.music.play(-1, 0.0)
-
         min_peace_time = 40
         remaining_peace_time = 10
         obstacles = []
         running = True
         iteration = 0
-        speed = 2
+        speed = SENSORLAND_SPEED[level_id]
+        iteration_increment = SENSORLAND_ITERATION_INC[level_id]
+        level_end = SENSORLAND_END_OF_ROAD[level_id]
         #Game Loop
         while running:
             remaining_peace_time -= 1
-            if remaining_peace_time == 0:
+            remaining_level = level_end-iteration
+            if remaining_level <= 0:
+                running = False
+            if remaining_peace_time == 0 and remaining_level > (100 * iteration_increment):
                 remaining_peace_time = min_peace_time
                 obstacle = get_obstacle()
                 obstacles.append(obstacle)
@@ -377,7 +366,7 @@ class SensorLandGame:
                 obstacles.remove(obst)
             self.do_sky(sky, iteration * 1)
             self.do_mountains(mountains, int(iteration * 1))
-            self.do_circuit(circuit, speed)
+            self.do_circuit(self.circuit, speed)
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
@@ -394,23 +383,60 @@ class SensorLandGame:
                 stefan.die()
                 running = False
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
-            if iteration < 1000:
-                iteration = iteration + 1
-            elif 1000 <= iteration < 2000:
-                iteration = iteration + 2
-                speed = 3
-            elif 2000 <= iteration < 10000:
-                iteration = iteration + 3
-                speed = 4
-            else:
-                iteration = iteration + 4
-                speed = 5
 
+            iteration += iteration_increment
+            self.score += iteration_increment
             # show score
             self.display.write_string("SCORE", 1, 0, background=None)
-            self.display.write_string("{:8d}".format(iteration), 20, 0, background=None)
+            self.display.write_string("{:8d}".format(self.score), 20, 0, background=None)
+            # show next speed
+            if remaining_level < (100 * iteration_increment):
+                self.display.write_string("NEXT LEVEL", 10, 30, background=None)
             self.display.show()
             time.sleep(0.02)
+        if stefan_is_dead:
+            time.sleep(1)
+            return False
+        return True
+
+    def run_game(self, display, input_control):
+        """Run the Game
+
+        """
+        self.display = display
+        self.input_control = input_control
+        leader_board = LeaderBoard('sensorland/records.txt')
+
+        mountains = img.imread('sensorland/images/mountains3.png')
+        mountains = np.transpose(mountains, (1, 0, 2)) * 255
+
+        sky = img.imread('sensorland/images/sky2.png')
+        sky = np.transpose(sky, (1, 0, 2)) * 255
+
+        # Ready Player 1
+        stefan = create_stefan()
+        # wait for 1st keypress
+        wait_for_start = True
+        while wait_for_start:
+            self.do_sky(sky, 0)
+            self.do_mountains(mountains, 0)
+            self.do_circuit(self.circuit, 0)
+            self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_UP] == 1:
+                        wait_for_start = False
+            time.sleep(0.1)
+            self.display.show()
+
+        pygame.mixer.music.load('sensorland/sound/theme.mp3')
+        pygame.mixer.music.play(-1, 0.0)
+
+        #Execute the different levelz
+        alive = self.do_level(level_id=0)
+        if alive:
+            alive = self.do_level(level_id=1)
 
         time.sleep(1)
         self.display.clear_screen()
@@ -420,7 +446,7 @@ class SensorLandGame:
         self.display.write_string("HIGH SCORE", 13, 5, [236, 173, 42], background=None)
         leader_board.fg_color = [0, 255, 255]
         leader_board.bg_color = None
-        leader_board.run_leader_board(iteration, self.display, self.input_control)
+        leader_board.run_leader_board(self.score, self.display, self.input_control)
         time.sleep(1)
         #todo wait for keypressed
         time.sleep(3.01)

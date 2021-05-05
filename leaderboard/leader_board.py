@@ -36,15 +36,19 @@ class LeaderBoard:
     def run_leader_board(self, score, display, input_controls):
         """ Run the leader bord part
 
+        :param input_controls:
+        :param display:
         :param score: the score from the game
         :return:
         """
         LEADER_BOARD_X = 10
         index_board = self.insert_score_in_leader_board(score)
+        a = pygame.event.get()
         for index, leader in enumerate(self.leader_board):
             message = '{:3s} {:6d}'.format(leader[0], leader[1])
             display.write_string(message, LEADER_BOARD_X, 18 + index * 8, foreground=self.fg_color, background=self.bg_color)
         display.show()
+        time.sleep(0.1)
         # 4. Edit mode if score changed
         if index_board >= 0:
             image_copy = display.image.copy()
@@ -52,26 +56,23 @@ class LeaderBoard:
             running = True
             iteration = 0
             while running:
-                pygame.time.delay(100)
+                a = pygame.event.get()
+                time.sleep(0.1)
                 display.show_image(image_copy)
                 char_name = list(self.leader_board[index_board][0])
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
+                if input_controls.left:
+                    if entry_x > 0:
+                        entry_x -= 1
+                if input_controls.right:
+                    if entry_x >= 2:
                         running = False
-                    keys = pygame.key.get_pressed()
-                    if keys[pygame.K_LEFT] and event.type == pygame.KEYDOWN:
-                        if entry_x > 0:
-                            entry_x -= 1
-                    if keys[pygame.K_RIGHT] and event.type == pygame.KEYDOWN:
-                        if entry_x >= 2:
-                            running = False
-                            iteration = 1
-                        if entry_x < 2:
-                            entry_x += 1
-                    if keys[pygame.K_UP] and event.type == pygame.KEYDOWN:
-                        char_name[entry_x] = get_next_char(char_name[entry_x])
-                    if keys[pygame.K_DOWN] and event.type == pygame.KEYDOWN:
-                        char_name[entry_x] = get_prev_char(char_name[entry_x])
+                        iteration = 1
+                    if entry_x < 2:
+                        entry_x += 1
+                if input_controls.up:
+                    char_name[entry_x] = get_next_char(char_name[entry_x])
+                if input_controls.down:
+                    char_name[entry_x] = get_prev_char(char_name[entry_x])
                 self.leader_board[index_board][0] = ''.join(char_name)
                 iteration = iteration + 1
                 # Print name
@@ -82,7 +83,10 @@ class LeaderBoard:
                 display.show()
         # 5. Save file
         self.save_leader_board()
-        time.sleep(5)
+        while input_controls.any_key_pressed() == 0:
+            a = pygame.event.get()
+            time.sleep(0.1)
+
 
     def load_leader_board(self):
         """load the leader board

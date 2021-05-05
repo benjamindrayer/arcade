@@ -9,12 +9,6 @@ from tetris.tetris import Tetris
 from FlexChain.FlexChain import FlexChainGame
 import time
 
-#TODO true alpha in images
-#TODO splash screen
-#TODO input controls
-#TODO tetris: play again
-#TODO ssil: everything :-)
-#
 
 DISPLAY_WIDTH = 64
 DISPLAY_HEIGHT = 64
@@ -38,7 +32,6 @@ game_index = 0
 iterations = 0
 screen.show()
 show_arrows = True
-#Init display
 running = True
 while running:
     iterations += 1
@@ -55,16 +48,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    if input_control.left_key_pressed() == 1:
+    if input_control.left == 1:
         game_index -= 1
         if game_index < 0:
             game_index = len(awesome_games) - 1
 
-    if input_control.right_key_pressed() == 1:
+    if input_control.right == 1:
         game_index += 1
         if game_index >= len(awesome_games):
             game_index = 0
 
-
-    if input_control.up_key_pressed() == 1:
+    if input_control.up == 1 or input_control.down == 1:
+        time.sleep(0.2)
         selected_game.run_game(screen, input_control=input_control)

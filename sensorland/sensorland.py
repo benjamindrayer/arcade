@@ -403,11 +403,9 @@ class SensorLandGame:
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    keys = pygame.key.get_pressed()
-                    if keys[pygame.K_UP] == 1:
-                        stefan.jump()
+            a = pygame.event.get()
+            if self.input_control.up:
+                stefan.jump()
             # Move
             stefan.update(self.score)
             # Check collision
@@ -454,14 +452,12 @@ class SensorLandGame:
             self.do_mountains(mountains, 0)
             self.do_circuit(0)
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    keys = pygame.key.get_pressed()
-                    if keys[pygame.K_UP] == 1:
-                        wait_for_start = False
+            if self.input_control.up:
+                wait_for_start = False
             time.sleep(0.1)
             self.display.show()
 
+        self.score = 0
         pygame.mixer.music.load('sensorland/sound/theme.mp3')
         pygame.mixer.music.play(-1, 0.0)
 
@@ -480,7 +476,5 @@ class SensorLandGame:
         leader_board.fg_color = [0, 255, 255]
         leader_board.bg_color = None
         leader_board.run_leader_board(self.score, self.display, self.input_control)
-        time.sleep(1)
-        #todo wait for keypressed
-        time.sleep(3.01)
+        time.sleep(0.5)
         pygame.mixer.music.pause()

@@ -7,6 +7,7 @@ from controls.input_control import *
 from sensorland.sensorland import SensorLandGame
 from tetris.tetris import Tetris
 from FlexChain.FlexChain import FlexChainGame
+import time
 
 #TODO true alpha in images
 #TODO splash screen
@@ -49,7 +50,7 @@ while running:
         screen.place_sprite(im_arrow_left, 0, 25)
         screen.place_sprite(im_arrow_right, 53, 25)
     screen.show()
-    pygame.time.delay(100)
+    time.sleep(0.1)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False

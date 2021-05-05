@@ -364,20 +364,19 @@ class FlexChainGame:
 
             #check input
             #TODO vergleich mit zu letzt gelaufener richtung (nach 1 schritt) und nicht mit aktuellem Parameter
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if input_control.up_key_pressed() == 1 and self.movementDir != Dir.UP:
-                        if debugMode == 1: print("up")
-                        self.movementDir = Dir.DOWN
-                    elif input_control.down_key_pressed() == 1 and self.movementDir != Dir.STOP and self.movementDir != Dir.DOWN:
-                        if debugMode == 1: print("down")
-                        self.movementDir = Dir.UP
-                    elif input_control.left_key_pressed() == 1 and self.movementDir != Dir.RIGHT:
-                        if debugMode == 1: print("left")
-                        self.movementDir = Dir.LEFT
-                    elif input_control.right_key_pressed() == 1 and self.movementDir != Dir.LEFT:
-                        if debugMode == 1: print("right")
-                        self.movementDir = Dir.RIGHT
+            temp = pygame.event.get()
+            if input_control.up == 1 and self.movementDir != Dir.UP:
+                if debugMode == 1: print("up")
+                self.movementDir = Dir.DOWN
+            elif input_control.down == 1 and self.movementDir != Dir.STOP and self.movementDir != Dir.DOWN:
+                if debugMode == 1: print("down")
+                self.movementDir = Dir.UP
+            elif input_control.left == 1 and self.movementDir != Dir.RIGHT:
+                if debugMode == 1: print("left")
+                self.movementDir = Dir.LEFT
+            elif input_control.right == 1 and self.movementDir != Dir.LEFT:
+                if debugMode == 1: print("right")
+                self.movementDir = Dir.RIGHT
                 # else:
                 # self.running = False
                 # if debug == 1: print("end")

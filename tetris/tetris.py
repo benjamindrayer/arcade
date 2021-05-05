@@ -88,22 +88,16 @@ class Tetris:
         iterations = 0
         running = True
         while running:
-            pygame.time.delay(10)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                keys = pygame.key.get_pressed()
-                if keys[pygame.K_LEFT] and event.type == pygame.KEYDOWN:
-                    block_current.move_left(game_board)
-                if keys[pygame.K_RIGHT] and event.type == pygame.KEYDOWN:
-                    block_current.move_right(game_board)
-                if keys[pygame.K_UP] and event.type == pygame.KEYDOWN:
-                    pygame.mixer.Sound.play(self.sound_rotate)
-                    block_current.rotate(game_board)
-                if keys[pygame.K_DOWN] and event.type == pygame.KEYDOWN:
-                    block_current.move_down(game_board)
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_DOWN]:
+            time.sleep(0.1)
+            temp = pygame.event.get()
+            if self.input_control.left:
+                block_current.move_left(game_board)
+            if self.input_control.right:
+                block_current.move_right(game_board)
+            if self.input_control.up:
+                pygame.mixer.Sound.play(self.sound_rotate)
+                block_current.rotate(game_board)
+            if self.input_control.down:
                 block_current.move_down(game_board)
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)
@@ -155,7 +149,9 @@ class Tetris:
         self.display.fade_to_image(image)
         self.display.write_string("HIGH SCORE", 13, 10, [50, 50, 255])
         leader_board.run_leader_board(score, self.display, self.input_control)
-        time.sleep(1)
+        time.sleep(0.5)
+        while self.input_control.any_key_pressed == 0:
+            time.sleep(0.1)
         pygame.mixer.music.pause()
 
     def show_splash_screen(self):

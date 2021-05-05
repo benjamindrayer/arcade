@@ -1,75 +1,44 @@
-#Class to control the inputs
-import pygame
-from threading import Thread
+# Class to control the inputs
+import keyboard
+import threading
+import time
+
 
 class InputControl:
 
     def __init__(self, input_type=0):
-        if type == 0:
-            pygame.init()
-        self.up = 0
-        self.down = 0
+        """Inits the input control. It start a background thread, that updates the current inputs.
+        Right now it is only the keyboard, but soon it will also be the sensor grid bus.
+
+        :param input_type:
+        """
+        self.input_type = input_type
         self.left = 0
         self.right = 0
-        self.input_type = input_type
+        self.up = 0
+        self.down = 0
+        thread = threading.Thread(target=self.run, args=())
+        thread.daemon = True  # Daemonize thread
+        thread.start()  # Start the execution
 
-    def r(self):
-        x = Thread(target=self.check_input())
-        x.daemon = True
-        x.start()
+    def run(self):
+        """Run and poll the keyboard inputs, obviously this could be more
+        elegant with a simple callback from the keyboard, but the communication
+        with the sensor grid will also be more like this. At least I assume it :-)
 
-    def left_key_pressed(self):
-        if self.input_type == 0:
-            keys = pygame.key.get_pressed()
-            return keys[pygame.K_LEFT]
-
-    def right_key_pressed(self):
-        if self.input_type == 0:
-            keys = pygame.key.get_pressed()
-            return keys[pygame.K_RIGHT]
-
-    def up_key_pressed(self):
-        if self.input_type == 0:
-            keys = pygame.key.get_pressed()
-            return keys[pygame.K_UP]
-        return False
-
-    def down_key_pressed(self):
-        if self.input_type == 0:
-            keys = pygame.key.get_pressed()
-            return keys[pygame.K_DOWN]
-
-    def wait_for_keypressed(self):
-        key_pressed = False
-        while not key_pressed:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    keys = pygame.key.get_pressed()
-                    if keys[pygame.K_DOWN] or keys[pygame.K_UP] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
-                        key_pressed = True
-                        print(keys[pygame.K_DOWN], keys[pygame.K_UP], keys[pygame.K_LEFT], keys[pygame.K_RIGHT])
-
-    def check_input(self):
-        if self.input_type == 0:
-            pygame.init()
+        :return:
+        """
         while True:
             if self.input_type == 0:
-                keys = pygame.key.get_pressed()
-                if keys[pygame.K_LEFT]:
-                    self.left = 1
-                else:
-                    self.left = 0
-                if keys[pygame.K_RIGHT]:
-                    self.right = 1
-                else:
-                    self.right = 0
-                if keys[pygame.K_UP]:
-                    self.up = 1
-                else:
-                    self.up = 0
-                if keys[pygame.K_DOWN]:
-                    self.down = 1
-                else:
-                    self.down = 0
-            print("a")
-            pygame.time.delay(2000)
+                self.left = keyboard.is_pressed("Left")
+                self.right = keyboard.is_pressed("Right")
+                self.down = keyboard.is_pressed("Down")
+                self.up = keyboard.is_pressed("Up")
+            time.sleep(0.01)
+
+    def any_key_pressed(self):
+        """Check if any key is pressed
+
+        :return:
+        """
+        return self.up + self.down + self.right + self.left

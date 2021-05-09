@@ -404,6 +404,7 @@ class SensorLandGame:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
             a = pygame.event.get()
+            self.input_control.read_inputs()
             if self.input_control.up:
                 stefan.jump()
             # Move
@@ -452,6 +453,7 @@ class SensorLandGame:
             self.do_mountains(mountains, 0)
             self.do_circuit(0)
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
+            self.input_control.read_inputs()
             if self.input_control.up:
                 wait_for_start = False
             time.sleep(0.1)

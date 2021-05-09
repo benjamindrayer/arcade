@@ -49,6 +49,7 @@ class Display:
             options.hardware_mapping = 'regular'  # If you have an Adafruit HAT: 'adafruit-hat'
             options.disable_hardware_pulsing = True
             options.gpio_slowdown = 4
+            options.drop_privileges = False
             #        options.limit_refresh_rate_hz = 80
             #        options.row_address_type = self.args.led_row_addr_type
             #        options.multiplexing = self.args.led_multiplexing

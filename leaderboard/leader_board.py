@@ -2,6 +2,7 @@
 import os
 import pygame
 import time
+from controls.input_control import *
 
 def get_next_char(character):
     i = ord(character)
@@ -60,19 +61,21 @@ class LeaderBoard:
                 time.sleep(0.1)
                 display.show_image(image_copy)
                 char_name = list(self.leader_board[index_board][0])
-                if input_controls.left:
-                    if entry_x > 0:
-                        entry_x -= 1
-                if input_controls.right:
-                    if entry_x >= 2:
-                        running = False
-                        iteration = 1
-                    if entry_x < 2:
-                        entry_x += 1
-                if input_controls.up:
-                    char_name[entry_x] = get_next_char(char_name[entry_x])
-                if input_controls.down:
-                    char_name[entry_x] = get_prev_char(char_name[entry_x])
+                input_events = input_controls.get_events()
+                for event in input_events:
+                    if event == EVENT_LEFT_PRESSED:
+                        if entry_x > 0:
+                            entry_x -= 1
+                    if event == EVENT_RIGHT_PRESSED:
+                        if entry_x >= 2:
+                            running = False
+                            iteration = 1
+                        if entry_x < 2:
+                            entry_x += 1
+                    if event == EVENT_UP_PRESSED:
+                        char_name[entry_x] = get_next_char(char_name[entry_x])
+                    if event == EVENT_DOWN_PRESSED:
+                       char_name[entry_x] = get_prev_char(char_name[entry_x])
                 self.leader_board[index_board][0] = ''.join(char_name)
                 iteration = iteration + 1
                 # Print name
@@ -83,9 +86,7 @@ class LeaderBoard:
                 display.show()
         # 5. Save file
         self.save_leader_board()
-        while input_controls.any_key_pressed() == 0:
-            a = pygame.event.get()
-            time.sleep(0.1)
+        input_controls.wait_for_key_pressed()
 
 
     def load_leader_board(self):

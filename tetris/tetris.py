@@ -88,6 +88,7 @@ class Tetris:
         block_next.place_on_board(preview)
         iterations = 0
         running = True
+        move_down = False
         while running:
             time.sleep(0.1)
             _ = pygame.event.get()
@@ -101,7 +102,11 @@ class Tetris:
                 if event == EVENT_RIGHT_PRESSED:
                     block_current.move_right(game_board)
                 if event == EVENT_DOWN_PRESSED:
-                    block_current.move_down(game_board)
+                    move_down = True
+                if event == EVENT_DOWN_RELEASED:
+                    move_down = False
+            if move_down:
+                block_current.move_down(game_board)
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)
             ok = True

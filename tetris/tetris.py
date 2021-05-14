@@ -89,8 +89,10 @@ class Tetris:
         iterations = 0
         running = True
         move_down = False
+        move_left = False
+        move_right = False
         while running:
-            time.sleep(0.1)
+            time.sleep(0.05)
             _ = pygame.event.get()
             input_events = self.input_control.get_events()
             for event in input_events:
@@ -98,15 +100,24 @@ class Tetris:
                     pygame.mixer.Sound.play(self.sound_rotate)
                     block_current.rotate(game_board)
                 if event == EVENT_LEFT_PRESSED:
-                    block_current.move_left(game_board)
+                    move_left = True
+                if event == EVENT_LEFT_RELEASED:
+                    move_left = False
                 if event == EVENT_RIGHT_PRESSED:
-                    block_current.move_right(game_board)
+                    move_right = True
+                if event == EVENT_RIGHT_RELEASED:
+                    move_right = False
                 if event == EVENT_DOWN_PRESSED:
                     move_down = True
                 if event == EVENT_DOWN_RELEASED:
                     move_down = False
             if move_down:
                 block_current.move_down(game_board)
+            if move_left:
+                block_current.move_left(game_board)
+            if move_right:
+                block_current.move_right(game_board)
+
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)
             ok = True
@@ -137,7 +148,7 @@ class Tetris:
                 # Update score etc:
                 self.display_score_etc(score, lines, level)
             self.display.show()
-            iterations = (iterations + 1) % (20 - min(19, level))
+            iterations = (iterations + 1) % (40 - min(39, level*2))
             if not ok:
                 pygame.mixer.music.pause()
                 pygame.mixer.Sound.play(self.sound_game_over)

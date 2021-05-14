@@ -20,7 +20,10 @@ class InputControl:
         self.keyboard = (input_type == INPUT_TYPE_BOTH) or (input_type == INPUT_TYPE_KEYBOARD)
         self.serial = 0
         if self.flex_chain:
-            self.connect_flexchain()
+            if self.connect_flexchain():
+                print("Connected to flexchain")     
+            else:
+                self.flex_chain = False
         self.left = 0
         self.right = 0
         self.up = 0
@@ -34,15 +37,26 @@ class InputControl:
         """
         com_ports = list(serial.tools.list_ports.grep('FC.*CDC'))
         if len(com_ports) >= 1:
-            com_port = com_ports[0]
+            selected_com_port = com_ports[0]
             #TODO Benjamin3er: change the speed to max
-            self.serial = serial.Serial(com_port[0])
+            print(selected_com_port)
+            self.serial = serial.Serial(selected_com_port[0], baudrate=128000, rtscts=True, timeout=0.5)
+            #check if open, return true
+            print(self.serial)
+            res = self.serial.readlines()
+            return self.serial.isOpen()
+        print("ERROR: Tryed to connect to Flexchain but failed !")
+        return False
 
     def read_inputs(self):
         """Read the inputs of the keyboard and/or the flexchain
 
         :return:
         """
+        self.left = 0
+        self.right = 0
+        self.up = 0
+        self.down = 0
         #Do the keyboard
         if self.keyboard:
             self.left = keyboard.is_pressed("Left")
@@ -51,8 +65,6 @@ class InputControl:
             self.up = keyboard.is_pressed("Up")
         #Do the flexchain
         if self.flex_chain:
-            self.up = 0
-            #TODO Benjamin3er: timeout, such that we do not wait forever 
             self.serial.write(b'iolr 40\n')
             res = self.serial.readline()
             answer = res.split()
@@ -61,9 +73,9 @@ class InputControl:
             if len(answer) > 20:
                 if answer[0] == b'Read' and answer[1] == b'ISDU' and answer[2] == b'40.0:':
                     if answer[4] == b'0x01':
-                        self.up = True
+                        self.up = self.up or True
                     else:
-                        self.up = False                            
+                        self.up = self.up or False                            
                         
 
     def any_key_pressed(self):

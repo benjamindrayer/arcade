@@ -424,7 +424,7 @@ class SensorLandGame:
             if remaining_level < (100 * iteration_increment):
                 self.display.write_string("NEXT LEVEL", 10, 30, background=None)
             self.display.show()
-            time.sleep(0.02)
+            time.sleep(0.04)
         if stefan_is_dead:
             time.sleep(1)
             return False

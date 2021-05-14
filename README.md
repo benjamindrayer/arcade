@@ -7,9 +7,10 @@
 python run.py
 ```
 
-Make sure that you use python3, pygame version 2 and keyboard is installed
+Make sure that you use python3, pygame version 2, pyserial and keyboard is installed
 ```
 pip3 install pygame
+pip3 install pyserial
 pip3 install keyboard
 ```
 ### How to make it run on a raspberry pi with a 64x64 RGB-Led display ?

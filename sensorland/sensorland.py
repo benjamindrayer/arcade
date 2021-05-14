@@ -6,6 +6,7 @@ import time
 import pygame
 import random
 from leaderboard.leader_board import *
+from controls.input_control import *
 
 GROUND_LEVEL = 31
 NUMBER_OF_CIRCUIT_ELEMENTS = 23     #Number of parts to combine the circuits
@@ -404,9 +405,10 @@ class SensorLandGame:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
             a = pygame.event.get()
-            self.input_control.read_inputs()
-            if self.input_control.up:
-                stefan.jump()
+            input_events = self.input_control.get_events()
+            for event in input_events:
+                if event == EVENT_UP_PRESSED:
+                    stefan.jump()
             # Move
             stefan.update(self.score)
             # Check collision
@@ -453,9 +455,10 @@ class SensorLandGame:
             self.do_mountains(mountains, 0)
             self.do_circuit(0)
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
-            self.input_control.read_inputs()
-            if self.input_control.up:
-                wait_for_start = False
+            input_events = self.input_control.get_events()
+            for event in input_events:
+                if event == EVENT_UP_PRESSED:
+                    wait_for_start = False
             time.sleep(0.1)
             self.display.show()
 

@@ -13,17 +13,17 @@ import time
 DISPLAY_WIDTH = 64
 DISPLAY_HEIGHT = 64
 
-input_control = InputControl(input_type=INPUT_TYPE_BOTH)
-
+print("INput control ok")
 im_arrow_left = img.imread('images/left_arrow.png')
 im_arrow_left = np.transpose(im_arrow_left, (1, 0, 2)) * 255
 
 im_arrow_right = img.imread('images/right_arrow.png')
 im_arrow_right = np.transpose(im_arrow_right, (1, 0, 2)) * 255
 
-screen = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, display_type=DISPLAY_TYPE_BOTH)
+screen = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, display_type=DISPLAY_TYPE_SCREEN)
 
 pygame.init()
+input_control = InputControl(input_type=INPUT_TYPE_KEYBOARD)
 pygame.display.set_caption('Stefan')
 
     
@@ -50,17 +50,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    input_control.read_inputs()
-    if input_control.left == 1:
-        game_index -= 1
-        if game_index < 0:
-            game_index = len(awesome_games) - 1
-
-    if input_control.right == 1:
-        game_index += 1
-        if game_index >= len(awesome_games):
-            game_index = 0
-
-    if input_control.up == 1 or input_control.down == 1:
-        time.sleep(0.2)
-        selected_game.run_game(screen, input_control=input_control)
+    input_events = input_control.get_events()
+    for event in input_events:
+        if event == EVENT_LEFT_PRESSED:
+            game_index -= 1
+            if game_index < 0:
+                game_index = len(awesome_games) - 1
+        if event == EVENT_RIGHT_PRESSED:
+            game_index += 1
+            if game_index >= len(awesome_games):
+                game_index = 0
+        if event == EVENT_DOWN_PRESSED or event == EVENT_UP_PRESSED:
+            time.sleep(0.2)
+            selected_game.run_game(screen, input_control=input_control)

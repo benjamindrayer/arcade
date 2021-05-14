@@ -7,6 +7,7 @@ from tetris.game.tetris_engine import *
 from tetris.game.textures import *
 from display.display import *
 from leaderboard.leader_board import *
+from controls.input_control import *
 import time
 
 #Anchor of the board
@@ -89,16 +90,18 @@ class Tetris:
         running = True
         while running:
             time.sleep(0.1)
-            temp = pygame.event.get()
-            if self.input_control.left:
-                block_current.move_left(game_board)
-            if self.input_control.right:
-                block_current.move_right(game_board)
-            if self.input_control.up:
-                pygame.mixer.Sound.play(self.sound_rotate)
-                block_current.rotate(game_board)
-            if self.input_control.down:
-                block_current.move_down(game_board)
+            _ = pygame.event.get()
+            input_events = self.input_control.get_events()
+            for event in input_events:
+                if event == EVENT_UP_PRESSED:
+                    pygame.mixer.Sound.play(self.sound_rotate)
+                    block_current.rotate(game_board)
+                if event == EVENT_LEFT_PRESSED:
+                    block_current.move_left(game_board)
+                if event == EVENT_RIGHT_PRESSED:
+                    block_current.move_right(game_board)
+                if event == EVENT_DOWN_PRESSED:
+                    block_current.move_down(game_board)
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)
             ok = True
@@ -150,8 +153,7 @@ class Tetris:
         self.display.write_string("HIGH SCORE", 13, 10, [50, 50, 255])
         leader_board.run_leader_board(score, self.display, self.input_control)
         time.sleep(0.5)
-        while self.input_control.any_key_pressed == 0:
-            time.sleep(0.1)
+        self.input_control.wait_for_keypressed()
         pygame.mixer.music.pause()
 
     def show_splash_screen(self):

@@ -136,9 +136,14 @@ class InputControl:
         self.input_was_read = True
         return result
 
-    def any_key_pressed(self):
-        """Check if any key is pressed
+    def wait_for_key_pressed(self):
+        """Wait for a keypress event
 
         :return:
         """
-        return self.up + self.down + self.right + self.left
+        wait_for_keypressed = True
+        while wait_for_keypressed:
+            input_events = self.get_events()
+            if len(input_events)>0:
+                wait_for_keypressed = False
+            time.sleep(0.3)

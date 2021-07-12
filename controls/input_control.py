@@ -20,12 +20,12 @@ EVENT_RIGHT_PRESSED = 6
 EVENT_RIGHT_RELEASED = 7
 
 # Defines, where to look for entries of the process data
-# [2, 5] means byte 2 Bit 5
-N_BYTES_PD = 5
+# [2, 5] means byte 2 bit 5
+N_BYTES_PD = 6
 Y_VALUES_PD = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5],
                [1, 6], [1, 7], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4]]
-X_VALUES_PD = [[2, 4], [2, 5], [2, 6], [2, 7], [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [4, 0],
-               [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7]]
+X_VALUES_PD = [[2, 5], [2, 6], [2, 7], [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [4, 0], [4, 1],
+               [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [5, 0]]
 BUTTON_A_PD = [[0, 0]]
 N_BEAMS = 20
 
@@ -111,14 +111,7 @@ class InputControl:
                             self.light_grid_x[beam_id] = (self.pd_bytes[X_VALUES_PD[beam_id][0]] >> X_VALUES_PD[beam_id][1]) & 1
                         #Read button
                         self.button_a = (self.pd_bytes[BUTTON_A_PD[0][0]] >> BUTTON_A_PD[0][1]) & 1
-                        if answer[4] == b'0x01':
-                            if self.up == 0:
-                                self.events.append(EVENT_UP_PRESSED)
-                                self.up = 1
-                        else:
-                            if self.up == 1:
-                                self.events.append(EVENT_UP_RELEASED)
-                                self.up = 0
+                        print(self.get_xy_position())
             # Do the keyboard
             if self.keyboard:
                 if keyboard.is_pressed("Left"):
@@ -175,3 +168,23 @@ class InputControl:
             if len(input_events) > 0:
                 wait_for_keypressed = False
             time.sleep(0.3)
+
+    def get_xy_position(self):
+        """Compute the averaged position in the lightgrid
+
+        :return: [x, y]
+        """
+        x = y = nx = ny = 0
+        for i in range(N_BEAMS):
+            if self.light_grid_y[i]:
+                ny += 1
+                y += i
+            if self.light_grid_x[i]:
+                nx += 1
+                x += i
+        x_res = y_res = -1
+        if nx > 0:
+            x_res = x / nx
+        if ny > 0:
+            y_res = y / ny
+        return [x_res, y_res]

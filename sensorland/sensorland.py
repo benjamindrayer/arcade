@@ -405,10 +405,15 @@ class SensorLandGame:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
             a = pygame.event.get()
-            input_events = self.input_control.get_events()
-            for event in input_events:
-                if event == EVENT_UP_PRESSED:
+            if self.input_control.flex_chain:
+                if self.input_control.button_a_pressed == 1:
+                    self.input_control.button_a_pressed = 0
                     stefan.jump()
+            else:            
+                input_events = self.input_control.get_events()            
+                for event in input_events:
+                    if event == EVENT_UP_PRESSED:
+                        stefan.jump()
             # Move
             stefan.update(self.score)
             # Check collision
@@ -455,10 +460,15 @@ class SensorLandGame:
             self.do_mountains(mountains, 0)
             self.do_circuit(0)
             self.display.place_sprite(stefan.sprite, stefan.x, stefan.y)
-            input_events = self.input_control.get_events()
-            for event in input_events:
-                if event == EVENT_UP_PRESSED:
+            if self.input_control.flex_chain:
+                if self.input_control.button_a_pressed == 1:
+                    self.input_control.button_a_pressed = 0
                     wait_for_start = False
+            else:
+                input_events = self.input_control.get_events()
+                for event in input_events:
+                    if event == EVENT_UP_PRESSED:
+                        wait_for_start = False
             time.sleep(0.1)
             self.display.show()
 

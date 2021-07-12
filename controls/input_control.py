@@ -60,6 +60,8 @@ class InputControl:
         self.x_pos = -1
         self.y_pos = -1
         self.button_a = 0
+        self.button_a_pressed = 0
+        self.button_a_released = 0
         # Run thread to check for inputs
         t = Thread(target=self.read_inputs, daemon=True)
         t.start()
@@ -74,7 +76,7 @@ class InputControl:
         for c in com_ports:
             print("Comport:", c)
         if len(com_ports) >= 1:
-            selected_com_port = com_ports[1]
+            selected_com_port = com_ports[0]
             print(selected_com_port)
             self.serial = serial.Serial(selected_com_port[0], baudrate=9600, rtscts=False, timeout=0.5)
             # check if open, return true
@@ -110,7 +112,12 @@ class InputControl:
                             self.light_grid_y[beam_id] = (self.pd_bytes[Y_VALUES_PD[beam_id][0]] >> Y_VALUES_PD[beam_id][1]) & 1
                             self.light_grid_x[beam_id] = (self.pd_bytes[X_VALUES_PD[beam_id][0]] >> X_VALUES_PD[beam_id][1]) & 1
                         #Read button
-                        self.button_a = (self.pd_bytes[BUTTON_A_PD[0][0]] >> BUTTON_A_PD[0][1]) & 1
+                        button_a_value = (self.pd_bytes[BUTTON_A_PD[0][0]] >> BUTTON_A_PD[0][1]) & 1 
+                        if self.button_a == 0 and button_a_value == 1:
+                           self.button_a_pressed = 1
+                        if self.button_a == 1 and button_a_value == 0:
+                           self.button_a_released = 1                        
+                        self.button_a = button_a_value
 #                        print(self.get_xy_position())
             # Do the keyboard
             if self.keyboard:

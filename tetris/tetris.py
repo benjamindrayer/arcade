@@ -97,9 +97,13 @@ class Tetris:
             if input_control.flex_chain:
                 position = input_control.get_xy_position()
                 if position[0] >= 0:
-                    target_x = int(position[0] / 2)  # This is ugly !!!
+                    target_x = round((position[0]-3) * 10 / 16)  # This is ugly !!!
+                    target_x = max(min(target_x, 9), 0)
                     print(position, target_x)
                     block_current.move_horizontal_to(target_x, game_board)
+                if position[1] >= 16:
+                    block_current.move_down(game_board)
+                
             else:
                 input_events = self.input_control.get_events()
                 for event in input_events:

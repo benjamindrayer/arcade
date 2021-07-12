@@ -366,20 +366,36 @@ class FlexChainGame:
             #TODO vergleich mit zu letzt gelaufener richtung (nach 1 schritt) und nicht mit aktuellem Parameter
             _ = pygame.event.get()
             input_events = input_control.get_events()
-            print(input_events)
-            for event in input_events:
-                if event == EVENT_UP_PRESSED and self.movementDir != Dir.UP:
-                    if debugMode == 1: print("up")
-                    self.movementDir = Dir.DOWN
-                elif event == EVENT_DOWN_PRESSED and self.movementDir != Dir.STOP and self.movementDir != Dir.DOWN:
-                    if debugMode == 1: print("down")
-                    self.movementDir = Dir.UP
-                elif event == EVENT_LEFT_PRESSED and self.movementDir != Dir.RIGHT:
-                    if debugMode == 1: print("left")
-                    self.movementDir = Dir.LEFT
-                elif event == EVENT_RIGHT_PRESSED and self.movementDir != Dir.LEFT:
-                    if debugMode == 1: print("right")
-                    self.movementDir = Dir.RIGHT
+            move_threshold = 1.5
+            if input_control.flex_chain:
+                position = input_control.get_xy_position()
+                if position[0] >= 0 and position[1] >= 0:
+                    x_dir = position[0] - (N_BEAMS-1)/2
+                    y_dir = position[1] - (N_BEAMS-1)/2
+                    if abs(x_dir) > abs(y_dir):
+                        if x_dir < -move_threshold:
+                            self.movementDir = Dir.LEFT
+                        if x_dir > move_threshold:
+                            self.movementDir = Dir.RIGHT
+                    else:
+                        if y_dir < -move_threshold:
+                            self.movementDir = Dir.DOWN
+                        if y_dir > move_threshold:
+                            self.movementDir = Dir.UP
+            else:
+                for event in input_events:
+                    if event == EVENT_UP_PRESSED and self.movementDir != Dir.UP:
+                        if debugMode == 1: print("up")
+                        self.movementDir = Dir.DOWN
+                    elif event == EVENT_DOWN_PRESSED and self.movementDir != Dir.STOP and self.movementDir != Dir.DOWN:
+                        if debugMode == 1: print("down")
+                        self.movementDir = Dir.UP
+                    elif event == EVENT_LEFT_PRESSED and self.movementDir != Dir.RIGHT:
+                        if debugMode == 1: print("left")
+                        self.movementDir = Dir.LEFT
+                    elif event == EVENT_RIGHT_PRESSED and self.movementDir != Dir.LEFT:
+                        if debugMode == 1: print("right")
+                        self.movementDir = Dir.RIGHT
                     # else:
                     # self.running = False
                     # if debug == 1: print("end")

@@ -94,29 +94,36 @@ class Tetris:
         while running:
             time.sleep(0.05)
             _ = pygame.event.get()
-            input_events = self.input_control.get_events()
-            for event in input_events:
-                if event == EVENT_UP_PRESSED:
-                    pygame.mixer.Sound.play(self.sound_rotate)
-                    block_current.rotate(game_board)
-                if event == EVENT_LEFT_PRESSED:
-                    move_left = True
-                if event == EVENT_LEFT_RELEASED:
-                    move_left = False
-                if event == EVENT_RIGHT_PRESSED:
-                    move_right = True
-                if event == EVENT_RIGHT_RELEASED:
-                    move_right = False
-                if event == EVENT_DOWN_PRESSED:
-                    move_down = True
-                if event == EVENT_DOWN_RELEASED:
-                    move_down = False
-            if move_down:
-                block_current.move_down(game_board)
-            if move_left:
-                block_current.move_left(game_board)
-            if move_right:
-                block_current.move_right(game_board)
+            if input_control.flex_chain:
+                position = input_control.get_xy_position()
+                if position[0] >= 0:
+                    target_x = int(position[0] / 2)  # This is ugly !!!
+                    print(position, target_x)
+                    block_current.move_horizontal_to(target_x, game_board)
+            else:
+                input_events = self.input_control.get_events()
+                for event in input_events:
+                    if event == EVENT_UP_PRESSED:
+                        pygame.mixer.Sound.play(self.sound_rotate)
+                        block_current.rotate(game_board)
+                    if event == EVENT_LEFT_PRESSED:
+                        move_left = True
+                    if event == EVENT_LEFT_RELEASED:
+                        move_left = False
+                    if event == EVENT_RIGHT_PRESSED:
+                        move_right = True
+                    if event == EVENT_RIGHT_RELEASED:
+                        move_right = False
+                    if event == EVENT_DOWN_PRESSED:
+                        move_down = True
+                    if event == EVENT_DOWN_RELEASED:
+                        move_down = False
+                if move_down:
+                    block_current.move_down(game_board)
+                if move_left:
+                    block_current.move_left(game_board)
+                if move_right:
+                    block_current.move_right(game_board)
 
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)

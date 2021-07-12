@@ -150,6 +150,26 @@ class Rock:
         self.place_on_board(game_board)
         return move_is_ok
 
+    def move_horizontal_to(self, x_pos_absolute, game_board):
+        """Move the rock absolute in the horizotnal layer
+
+        :param x_pos_absolute: Absolute x-position
+        :param game_board:
+        :return:
+        """
+        delta = 1
+        if x_pos_absolute < self.x:
+            delta = -1
+        move_is_ok = True
+        print(x_pos_absolute, self.x)
+        while x_pos_absolute != self.x and move_is_ok:
+            if delta>0:
+                move_is_ok = self.move_right(game_board)
+            else:
+                move_is_ok = self.move_left(game_board)
+        return move_is_ok
+
+
     def move_left(self, game_board):
         """Move Rock one element to the left
 

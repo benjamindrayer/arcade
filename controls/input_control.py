@@ -111,7 +111,7 @@ class InputControl:
                             self.light_grid_x[beam_id] = (self.pd_bytes[X_VALUES_PD[beam_id][0]] >> X_VALUES_PD[beam_id][1]) & 1
                         #Read button
                         self.button_a = (self.pd_bytes[BUTTON_A_PD[0][0]] >> BUTTON_A_PD[0][1]) & 1
-                        print(self.get_xy_position())
+#                        print(self.get_xy_position())
             # Do the keyboard
             if self.keyboard:
                 if keyboard.is_pressed("Left"):

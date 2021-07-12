@@ -4,6 +4,7 @@ from threading import Thread
 import serial
 import serial.tools.list_ports
 import keyboard
+import numpy as np
 
 INPUT_TYPE_KEYBOARD = 0
 INPUT_TYPE_FLEXCHAIN = 1
@@ -18,6 +19,17 @@ EVENT_DOWN_RELEASED = 5
 EVENT_RIGHT_PRESSED = 6
 EVENT_RIGHT_RELEASED = 7
 
+# Defines, where to look for entries of the process data
+# [2, 5] means byte 2 Bit 5
+N_BYTES_PD = 5
+Y_VALUES_PD = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5],
+               [1, 6], [1, 7], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4]]
+X_VALUES_PD = [[2, 4], [2, 5], [2, 6], [2, 7], [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [4, 0],
+               [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7]]
+BUTTON_A_PD = [[0, 0]]
+N_BEAMS = 20
+
+
 class InputControl:
 
     def __init__(self, input_type=INPUT_TYPE_KEYBOARD):
@@ -31,7 +43,7 @@ class InputControl:
         self.serial = 0
         if self.flex_chain:
             if self.connect_flexchain():
-                print("Connected to flexchain")     
+                print("Connected to flexchain")
             else:
                 self.flex_chain = False
         self.events = []
@@ -41,7 +53,14 @@ class InputControl:
         self.right = 0
         self.up = 0
         self.down = 0
-        #Run thread to check for inputs
+        # Controls from flexchain
+        self.pd_bytes = np.zeros((N_BYTES_PD, 1), dtype=np.uint8)
+        self.light_grid_y = np.zeros((N_BEAMS, 1), dtype=np.uint8)
+        self.light_grid_x = np.zeros((N_BEAMS, 1), dtype=np.uint8)
+        self.x_pos = -1
+        self.y_pos = -1
+        self.button_a = 0
+        # Run thread to check for inputs
         t = Thread(target=self.read_inputs, daemon=True)
         t.start()
 
@@ -51,18 +70,19 @@ class InputControl:
 
         :return:
         """
-        com_ports = list(serial.tools.list_ports.grep('FC.*CDC'))
+        com_ports = list(serial.tools.list_ports.comports())
+        for c in com_ports:
+            print("Comport:", c)
         if len(com_ports) >= 1:
-            selected_com_port = com_ports[0]
+            selected_com_port = com_ports[1]
             print(selected_com_port)
-            self.serial = serial.Serial(selected_com_port[0], baudrate=128000, rtscts=True, timeout=0.5)
-            #check if open, return true
+            self.serial = serial.Serial(selected_com_port[0], baudrate=9600, rtscts=False, timeout=0.5)
+            # check if open, return true
             print(self.serial)
             _ = self.serial.readlines()
             return self.serial.isOpen()
         print("ERROR: Tryed to connect to Flexchain but failed !")
         return False
-
 
     def read_inputs(self):
         """Read the inputs of the keyboard and/or the flexchain
@@ -70,7 +90,7 @@ class InputControl:
         :return:
         """
         while True:
-            #Clear events if they were read out
+            # Clear events if they were read out
             if self.input_was_read:
                 self.events = []
                 self.input_was_read = False
@@ -83,6 +103,14 @@ class InputControl:
                 #                 cast as integer and to proper cases
                 if len(answer) > 20:
                     if answer[0] == b'Read' and answer[1] == b'ISDU' and answer[2] == b'40.0:':
+                        for byte_id in range(N_BYTES_PD):
+                            self.pd_bytes[byte_id] = int(answer[4 + byte_id], 16)  # cast PD from string to int
+                        #Read x/y
+                        for beam_id in range(N_BEAMS):
+                            self.light_grid_y[beam_id] = (self.pd_bytes[Y_VALUES_PD[beam_id][0]] >> Y_VALUES_PD[beam_id][1]) & 1
+                            self.light_grid_x[beam_id] = (self.pd_bytes[X_VALUES_PD[beam_id][0]] >> X_VALUES_PD[beam_id][1]) & 1
+                        #Read button
+                        self.button_a = (self.pd_bytes[BUTTON_A_PD[0][0]] >> BUTTON_A_PD[0][1]) & 1
                         if answer[4] == b'0x01':
                             if self.up == 0:
                                 self.events.append(EVENT_UP_PRESSED)
@@ -144,6 +172,6 @@ class InputControl:
         wait_for_keypressed = True
         while wait_for_keypressed:
             input_events = self.get_events()
-            if len(input_events)>0:
+            if len(input_events) > 0:
                 wait_for_keypressed = False
             time.sleep(0.3)

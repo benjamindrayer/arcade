@@ -56,8 +56,10 @@ while running:
             game_index = 0
         if 6 <= position[0] <= 13:
             game_index = 1
-        if 14 <= position[0] <= 20:
+        if 14 <= position[0] <= 19:
             game_index = 2
+        if 0 <= position[1] <= 3 or 16 <= position[1] <= 19 or input_control.button_a:
+            selected_game.run_game(screen, input_control=input_control)
     else:
         # TODO: keyboard input
         input_events = input_control.get_events()

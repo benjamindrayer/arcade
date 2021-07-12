@@ -103,7 +103,10 @@ class Tetris:
                     block_current.move_horizontal_to(target_x, game_board)
                 if position[1] >= 16:
                     block_current.move_down(game_board)
-                
+                if input_control.button_a_pressed == 1:
+                    input_control.button_a_pressed = 0
+                    block_current.rotate(game_board)
+                    
             else:
                 input_events = self.input_control.get_events()
                 for event in input_events:

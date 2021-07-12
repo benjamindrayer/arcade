@@ -366,7 +366,7 @@ class FlexChainGame:
             #TODO vergleich mit zu letzt gelaufener richtung (nach 1 schritt) und nicht mit aktuellem Parameter
             _ = pygame.event.get()
             input_events = input_control.get_events()
-            move_threshold = 1.5
+            move_threshold = 1.0
             if input_control.flex_chain:
                 position = input_control.get_xy_position()
                 if position[0] >= 0 and position[1] >= 0:

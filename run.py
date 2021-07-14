@@ -29,6 +29,7 @@ awesome_games = [SensorLandGame(), Tetris(), FlexChainGame()]
 
 # Do the selection menu only left and right are required
 game_index = 0
+raw_index = 0
 iterations = 0
 screen.show()
 show_arrows = True
@@ -48,16 +49,17 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    #Control by flexchain hardcoded for 3 games
-    #TODO drayebe change to a more generic approach
     if input_control.flex_chain:
         position = input_control.get_xy_position()
-        if 0 <= position[0] <= 5:
-            game_index = 0
-        if 6 <= position[0] <= 13:
-            game_index = 1
-        if 14 <= position[0] <= 19:
-            game_index = 2
+        if 0 <= position[0] <= 19:
+            delta = (position[0]-9.5)/30
+            raw_index += delta
+            if raw_index < 0:
+                raw_index = len(awesome_games) - 0.0001
+            if raw_index > len(awesome_games) - 0.0001:
+                raw_index = 0
+        game_index = int(raw_index)
+        print(raw_index, game_index)
         if 0 <= position[1] <= 3 or 16 <= position[1] <= 19 or input_control.button_a:
             selected_game.run_game(screen, input_control=input_control)
     else:

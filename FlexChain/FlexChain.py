@@ -364,8 +364,7 @@ class FlexChainGame:
 
             #check input
             #TODO vergleich mit zu letzt gelaufener richtung (nach 1 schritt) und nicht mit aktuellem Parameter
-            _ = pygame.event.get()
-            input_events = input_control.get_events()
+            events = pygame.event.get()
             move_threshold = 1.0
             if input_control.flex_chain:
                 position = input_control.get_xy_position()
@@ -373,32 +372,31 @@ class FlexChainGame:
                     x_dir = position[0] - (N_BEAMS-1)/2
                     y_dir = position[1] - (N_BEAMS-1)/2
                     if abs(x_dir) > abs(y_dir):
-                        if x_dir < -move_threshold:
+                        if x_dir < -move_threshold and self.movementDir != Dir.RIGHT:
                             self.movementDir = Dir.LEFT
-                        if x_dir > move_threshold:
+                        if x_dir > move_threshold and self.movementDir != Dir.LEFT:
                             self.movementDir = Dir.RIGHT
                     else:
-                        if y_dir < -move_threshold:
+                        if y_dir < -move_threshold and self.movementDir != Dir.UP:
                             self.movementDir = Dir.DOWN
-                        if y_dir > move_threshold:
+                        if y_dir > move_threshold and self.movementDir != Dir.DOWN:
                             self.movementDir = Dir.UP
-            else:
-                for event in input_events:
-                    if event == EVENT_UP_PRESSED and self.movementDir != Dir.UP:
-                        if debugMode == 1: print("up")
-                        self.movementDir = Dir.DOWN
-                    elif event == EVENT_DOWN_PRESSED and self.movementDir != Dir.STOP and self.movementDir != Dir.DOWN:
-                        if debugMode == 1: print("down")
-                        self.movementDir = Dir.UP
-                    elif event == EVENT_LEFT_PRESSED and self.movementDir != Dir.RIGHT:
-                        if debugMode == 1: print("left")
-                        self.movementDir = Dir.LEFT
-                    elif event == EVENT_RIGHT_PRESSED and self.movementDir != Dir.LEFT:
-                        if debugMode == 1: print("right")
-                        self.movementDir = Dir.RIGHT
-                    # else:
-                    # self.running = False
-                    # if debug == 1: print("end")
+
+            if input_control.keyboard:
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_UP and self.movementDir != Dir.UP:
+                            if debugMode == 1: print("up")
+                            self.movementDir = Dir.DOWN
+                        elif event.key == pygame.K_DOWN and self.movementDir != Dir.DOWN:
+                            if debugMode == 1: print("down")
+                            self.movementDir = Dir.UP
+                        elif event.key == pygame.K_LEFT and self.movementDir != Dir.RIGHT:
+                            if debugMode == 1: print("left")
+                            self.movementDir = Dir.LEFT
+                        elif event.key == pygame.K_RIGHT and self.movementDir != Dir.LEFT:
+                            if debugMode == 1: print("right")
+                            self.movementDir = Dir.RIGHT
 
             time.sleep(0.001)
 

@@ -88,54 +88,48 @@ class Tetris:
         block_next.place_on_board(preview)
         iterations = 0
         running = True
-        move_down = False
-        move_left = False
-        move_right = False
+        enable_rotation = True
         while running:
             time.sleep(0.05)
-            _ = pygame.event.get()
             if input_control.flex_chain:
                 position = input_control.get_xy_position()
                 if position[0] >= 0:
                     target_x = round((position[0]-3) * 10 / 16)  # This is ugly !!!
                     target_x = max(min(target_x, 9), 0)
-                    print(position, target_x)
                     block_current.move_horizontal_to(target_x, game_board)
                 if position[1] >= 16:
                     block_current.move_down(game_board)
+                if 0 <= position[1] <= 7 and enable_rotation:
+                    pygame.mixer.Sound.play(self.sound_rotate)
+                    block_current.rotate(game_board)
+                    enable_rotation = False
+                if 7 < position[1] or position[1] < 0:
+                    enable_rotation = True
                 if input_control.button_a_pressed == 1:
                     input_control.button_a_pressed = 0
-                    block_current.rotate(game_board)
-                    
-            else:
-                input_events = self.input_control.get_events()
-                for event in input_events:
-                    if event == EVENT_UP_PRESSED:
-                        pygame.mixer.Sound.play(self.sound_rotate)
-                        block_current.rotate(game_board)
-                    if event == EVENT_LEFT_PRESSED:
-                        move_left = True
-                    if event == EVENT_LEFT_RELEASED:
-                        move_left = False
-                    if event == EVENT_RIGHT_PRESSED:
-                        move_right = True
-                    if event == EVENT_RIGHT_RELEASED:
-                        move_right = False
-                    if event == EVENT_DOWN_PRESSED:
-                        move_down = True
-                    if event == EVENT_DOWN_RELEASED:
-                        move_down = False
-                if move_down:
-                    block_current.move_down(game_board)
-                if move_left:
-                    block_current.move_left(game_board)
-                if move_right:
-                    block_current.move_right(game_board)
+                    block_current.move_vertical_to(20, game_board)
+
+            events = pygame.event.get()
+            if input_control.keyboard:
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            block_current.move_left(game_board)
+                        elif event.key == pygame.K_RIGHT:
+                            block_current.move_right(game_board)
+                        elif event.key == pygame.K_UP:
+                            pygame.mixer.Sound.play(self.sound_rotate)
+                            block_current.rotate(game_board)
+                        elif event.key == pygame.K_DOWN:
+                            block_current.move_down(game_board)
+                        elif event.key == pygame.K_SPACE:
+                            block_current.move_vertical_to(20, game_board)
 
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)
             ok = True
             if iterations == 0:
+                enable_rotation = True
                 if not block_current.move_down(game_board):
                     pygame.mixer.Sound.play(self.sound_landing)
                     complete_lines = game_board.get_complete_lines()

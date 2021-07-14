@@ -161,7 +161,6 @@ class Rock:
         if x_pos_absolute < self.x:
             delta = -1
         move_is_ok = True
-        print(x_pos_absolute, self.x)
         while x_pos_absolute != self.x and move_is_ok:
             if delta>0:
                 move_is_ok = self.move_right(game_board)
@@ -169,7 +168,17 @@ class Rock:
                 move_is_ok = self.move_left(game_board)
         return move_is_ok
 
+    def move_vertical_to(self, y_pos_absolute, game_board):
+        """Move the rock absolute in the vertical layer
 
+        :param y_pos_absolute: Absolute y-position
+        :param game_board:
+        :return:
+        """
+        move_is_ok = True
+        while y_pos_absolute != self.y and move_is_ok:
+            move_is_ok = self.move_down(game_board)
+        return move_is_ok
     def move_left(self, game_board):
         """Move Rock one element to the left
 

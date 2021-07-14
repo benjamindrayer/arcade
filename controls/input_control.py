@@ -62,6 +62,9 @@ class InputControl:
         self.button_a = 0
         self.button_a_pressed = 0
         self.button_a_released = 0
+        self.button_b = 0
+        self.button_b_pressed = 0
+        self.button_b_released = 0
         # Run thread to check for inputs
         t = Thread(target=self.read_inputs, daemon=True)
         t.start()
@@ -76,7 +79,7 @@ class InputControl:
         for c in com_ports:
             print("Comport:", c)
         if len(com_ports) >= 1:
-            selected_com_port = com_ports[0]
+            selected_com_port = com_ports[1]
             print(selected_com_port)
             self.serial = serial.Serial(selected_com_port[0], baudrate=9600, rtscts=False, timeout=0.5)
             # check if open, return true

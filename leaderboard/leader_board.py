@@ -44,7 +44,7 @@ class LeaderBoard:
         """
         LEADER_BOARD_X = 10
         index_board = self.insert_score_in_leader_board(score)
-        a = pygame.event.get()
+        events = pygame.event.get()
         for index, leader in enumerate(self.leader_board):
             message = '{:3s} {:6d}'.format(leader[0], leader[1])
             display.write_string(message, LEADER_BOARD_X, 18 + index * 8, foreground=self.fg_color, background=self.bg_color)
@@ -54,28 +54,54 @@ class LeaderBoard:
         if index_board >= 0:
             image_copy = display.image.copy()
             entry_x = 0
+            sum_y = 0
             running = True
             iteration = 0
             while running:
-                a = pygame.event.get()
+                events = pygame.event.get()
                 time.sleep(0.1)
                 display.show_image(image_copy)
                 char_name = list(self.leader_board[index_board][0])
-                input_events = input_controls.get_events()
-                for event in input_events:
-                    if event == EVENT_LEFT_PRESSED:
-                        if entry_x > 0:
-                            entry_x -= 1
-                    if event == EVENT_RIGHT_PRESSED:
+                if input_controls.flex_chain:
+                    position = input_controls.get_xy_position()
+                    if 0 <= position[1] <= 19:
+                        delta = (position[1] - 9.5)
+                        sum_y += delta
+                        if sum_y < -10:
+                            char_name[entry_x] = get_next_char(char_name[entry_x])
+                            sum_y = 0
+                        if sum_y > 10:
+                            char_name[entry_x] = get_prev_char(char_name[entry_x])
+                            sum_y = 0
+                    if input_controls.button_a_pressed == 1:
+                        input_controls.button_a_pressed = 0
                         if entry_x >= 2:
                             running = False
                             iteration = 1
                         if entry_x < 2:
                             entry_x += 1
-                    if event == EVENT_UP_PRESSED:
-                        char_name[entry_x] = get_next_char(char_name[entry_x])
-                    if event == EVENT_DOWN_PRESSED:
-                       char_name[entry_x] = get_prev_char(char_name[entry_x])
+                    if input_controls.button_b_pressed == 1:
+                        input_controls.button_b_pressed = 0
+                        if entry_x > 0:
+                            entry_x -= 1
+
+                if input_controls.keyboard:
+                    for event in events:
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_LEFT:
+                                if entry_x > 0:
+                                    entry_x -= 1
+                            if event.key == pygame.K_RIGHT:
+                                if entry_x >= 2:
+                                    running = False
+                                    iteration = 1
+                                if entry_x < 2:
+                                    entry_x += 1
+                            if event.key == pygame.K_UP:
+                                char_name[entry_x] = get_next_char(char_name[entry_x])
+                            if event.key == pygame.K_DOWN:
+                                char_name[entry_x] = get_prev_char(char_name[entry_x])
+
                 self.leader_board[index_board][0] = ''.join(char_name)
                 iteration = iteration + 1
                 # Print name

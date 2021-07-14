@@ -45,7 +45,8 @@ while running:
         screen.place_sprite(im_arrow_right, 53, 25)
     screen.show()
     time.sleep(0.1)
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         if event.type == pygame.QUIT:
             running = False
 
@@ -59,21 +60,21 @@ while running:
             if raw_index > len(awesome_games) - 0.0001:
                 raw_index = 0
         game_index = int(raw_index)
-        print(raw_index, game_index)
         if 0 <= position[1] <= 3 or 16 <= position[1] <= 19 or input_control.button_a:
             selected_game.run_game(screen, input_control=input_control)
-    else:
-        # TODO: keyboard input
-        input_events = input_control.get_events()
-        for event in input_events:
-            if event == EVENT_LEFT_PRESSED:
-                game_index -= 1
-                if game_index < 0:
-                    game_index = len(awesome_games) - 1
-            if event == EVENT_RIGHT_PRESSED:
-                game_index += 1
-                if game_index >= len(awesome_games):
-                    game_index = 0
-            if event == EVENT_DOWN_PRESSED or event == EVENT_UP_PRESSED:
-                time.sleep(0.2)
-                selected_game.run_game(screen, input_control=input_control)
+
+    if input_control.keyboard:
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    game_index -= 1
+                    if game_index < 0:
+                        game_index = len(awesome_games) - 1
+                if event.key == pygame.K_RIGHT:
+                    game_index += 1
+                    if game_index >= len(awesome_games):
+                        game_index = 0
+                raw_index = game_index
+                if event.key == pygame.K_DOWN or event.key == pygame.K_UP or event.key == pygame.K_SPACE:
+                    time.sleep(0.2)
+                    selected_game.run_game(screen, input_control=input_control)

@@ -69,25 +69,24 @@ class InputControl:
         t = Thread(target=self.read_inputs, daemon=True)
         t.start()
 
+
     def connect_flexchain(self):
         """Connects to the flexchain serial port, we know that the name of it is
         FC[blablabla]CDC
-
         :return:
         """
-        com_ports = list(serial.tools.list_ports.comports())
-        for c in com_ports:
-            print("Comport:", c)
+        com_ports = list(serial.tools.list_ports.grep('FC.*CDC'))
         if len(com_ports) >= 1:
-            selected_com_port = com_ports[1]
+            selected_com_port = com_ports[0]
             print(selected_com_port)
-            self.serial = serial.Serial(selected_com_port[0], baudrate=9600, rtscts=False, timeout=0.5)
-            # check if open, return true
+            self.serial = serial.Serial(selected_com_port[0], baudrate=128000, rtscts=True, timeout=0.5)
+            #check if open, return true
             print(self.serial)
             _ = self.serial.readlines()
             return self.serial.isOpen()
         print("ERROR: Tryed to connect to Flexchain but failed !")
         return False
+
 
     def read_inputs(self):
         """Read the inputs of the keyboard and/or the flexchain

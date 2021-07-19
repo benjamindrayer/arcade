@@ -37,3 +37,14 @@ Then gp to the rpi-rgb-led-matrix directory and compile
 cd rpi-rgb-led-matrix
 make -C examples-api-use
 ```
+How to autostart the script after booting:
+edit the /etc/profile/
+```
+sudo nano /etc/profile
+```
+At the end of the file add the folling:
+```
+cd /home/pi/Development/arcade
+sudo python3 run.py
+```
+

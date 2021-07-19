@@ -3,7 +3,6 @@ import time
 from threading import Thread
 import serial
 import serial.tools.list_ports
-import keyboard
 import numpy as np
 
 INPUT_TYPE_KEYBOARD = 0
@@ -103,8 +102,7 @@ class InputControl:
                 self.serial.write(b'iolr 40\n')
                 res = self.serial.readline()
                 answer = res.split()
-                # TODO Benjamin3er this is ugly and does only work for the single sensor,
-                #                 cast as integer and to proper cases
+                # Process the process data
                 if len(answer) > 20:
                     if answer[0] == b'Read' and answer[1] == b'ISDU' and answer[2] == b'40.0:':
                         for byte_id in range(N_BYTES_PD):
@@ -121,61 +119,28 @@ class InputControl:
                            self.button_a_released = 1                        
                         self.button_a = button_a_value
 #                        print(self.get_xy_position())
-            # Do the keyboard
-            if self.keyboard:
-                if keyboard.is_pressed("Left"):
-                    if self.left == 0:
-                        self.events.append(EVENT_LEFT_PRESSED)
-                        self.left = 1
-                else:
-                    if self.left == 1:
-                        self.events.append(EVENT_LEFT_RELEASED)
-                        self.left = 0
-                if keyboard.is_pressed("Right"):
-                    if self.right == 0:
-                        self.events.append(EVENT_RIGHT_PRESSED)
-                        self.right = 1
-                else:
-                    if self.right == 1:
-                        self.events.append(EVENT_RIGHT_RELEASED)
-                        self.right = 0
-                if keyboard.is_pressed("Up"):
-                    if self.up == 0:
-                        self.events.append(EVENT_UP_PRESSED)
-                        self.up = 1
-                else:
-                    if self.up == 1:
-                        self.events.append(EVENT_UP_RELEASED)
-                        self.up = 0
-                if keyboard.is_pressed("Down"):
-                    if self.down == 0:
-                        self.events.append(EVENT_DOWN_PRESSED)
-                        self.down = 1
-                else:
-                    if self.down == 1:
-                        self.events.append(EVENT_DOWN_RELEASED)
-                        self.down = 0
             time.sleep(0.01)
 
-    def get_events(self):
-        """Get the list of events and trigger a delete of the list
 
-        :return:
+    def there_is_any_detection(self):
+        """ Check if there was any detection 
+
+        :return: True/False
         """
-        result = self.events.copy()
-        self.input_was_read = True
-        return result
+        for i in range(N_BEAMS):
+            if self.light_grid_x[i] > 0 or self.light_grid_y[i] > 0:
+                return True
+            if self.button_a > 0:
+                return True
+        return False
+        
 
     def wait_for_key_pressed(self):
         """Wait for a keypress event
 
         :return:
         """
-        wait_for_keypressed = True
-        while wait_for_keypressed:
-            input_events = self.get_events()
-            if len(input_events) > 0:
-                wait_for_keypressed = False
+        while not self.there_is_any_detection():
             time.sleep(0.3)
 
     def get_xy_position(self):

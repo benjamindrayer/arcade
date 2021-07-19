@@ -74,6 +74,9 @@ while running:
                     game_index += 1
                     if game_index >= len(awesome_games):
                         game_index = 0
+                if event.key == pygame.K_c and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                    running = False
+                
                 raw_index = game_index
                 if event.key == pygame.K_DOWN or event.key == pygame.K_UP or event.key == pygame.K_SPACE:
                     time.sleep(0.2)

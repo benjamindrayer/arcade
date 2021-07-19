@@ -8,6 +8,23 @@ python run.py
 ```
 
 On the raspberry:
+ - Setup the pi: 
+Install the raspberrian OS.
+Clone this repository:
+```
+git clone https://github.com/benjamindrayer/arcade.git
+```
+After checking out the repo You have to init and update the submodule
+```
+cd arcade
+git submodule init
+git submodule update
+```
+Then gp to the rpi-rgb-led-matrix directory and compile
+```
+cd rpi-rgb-led-matrix
+make -C examples-api-use
+```
 
 ```
 sudo python3 run.py
@@ -26,16 +43,6 @@ pip3 install matplotlib
 The submodule for the rgb lib was added the following way
 ```
 git submodule add -b master https://github.com/hzeller/rpi-rgb-led-matrix
-```
-After checking out the repo You have tp init and update the submodule
-```
-git submodule init
-git submodule update
-```
-Then gp to the rpi-rgb-led-matrix directory and compile
-```
-cd rpi-rgb-led-matrix
-make -C examples-api-use
 ```
 How to autostart the script after booting:
 edit the /etc/profile/

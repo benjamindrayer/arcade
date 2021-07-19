@@ -69,7 +69,6 @@ class Tetris:
         leader_board = LeaderBoard('tetris/records.txt')
         self.display = display
         self.input_control = input_control
-#        self.show_splash_screen()
         score = 0
         lines = 0
         level = 0
@@ -90,7 +89,7 @@ class Tetris:
         running = True
         enable_rotation = True
         while running:
-            time.sleep(0.05)
+            time.sleep(0.005)
             if input_control.flex_chain:
                 position = input_control.get_xy_position()
                 if position[0] >= 0:
@@ -108,6 +107,7 @@ class Tetris:
                 if input_control.button_a_pressed == 1:
                     input_control.button_a_pressed = 0
                     block_current.move_vertical_to(20, game_board)
+                    iterations = 0
 
             events = pygame.event.get()
             if input_control.keyboard:
@@ -124,6 +124,7 @@ class Tetris:
                             block_current.move_down(game_board)
                         elif event.key == pygame.K_SPACE:
                             block_current.move_vertical_to(20, game_board)
+                            iterations = 0
 
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)
@@ -156,7 +157,7 @@ class Tetris:
                 # Update score etc:
                 self.display_score_etc(score, lines, level)
             self.display.show()
-            iterations = (iterations + 1) % (40 - min(39, level*2))
+            iterations = (iterations + 1) % (20 - min(19, level*2))
             if not ok:
                 pygame.mixer.music.pause()
                 pygame.mixer.Sound.play(self.sound_game_over)
@@ -166,7 +167,7 @@ class Tetris:
                 self.display.write_string("GAME", 13, 22)
                 self.display.write_string("OVER", 13, 29)
                 self.display.show()
-                time.sleep(5)
+                time.sleep(3)
         # high score
         pygame.mixer.music.load('tetris/sound/highscore.mp3')
         pygame.mixer.music.play(-1, 0.0)
@@ -177,27 +178,9 @@ class Tetris:
         self.display.write_string("HIGH SCORE", 13, 10, [50, 50, 255])
         leader_board.run_leader_board(score, self.display, self.input_control)
         time.sleep(0.5)
-        self.input_control.wait_for_keypressed()
+        input_control.wait_for_key_pressed()
         pygame.mixer.music.pause()
 
-    def show_splash_screen(self):
-        """Show the splash screen at start of the game
-
-        :return:
-        """
-        # reading png image file
-        image = img.imread(os.path.join(self.path, 'images/logo_background.png'))
-        image = np.transpose(image[:, :, :3], (1, 0, 2)) * 255
-        self.display.fade_to_image(image)
-        image = img.imread(os.path.join(self.path, 'images/logo.png'))
-        image = np.transpose(image[:, :, :3], (1, 0, 2)) * 255
-        self.display.fade_to_image(image)
-        time.sleep(2)
-        self.display.write_string("PRESS KEY", 10, 45)
-        self.display.show()
-        self.input_control.wait_for_keypressed()
-        self.display.clear_screen()
-        self.display.show()
 
     def display_game_board(self, game_board, offset_x, offset_y):
         """Display the game board on the screen

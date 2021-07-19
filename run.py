@@ -19,7 +19,7 @@ im_arrow_left = np.transpose(im_arrow_left, (1, 0, 2)) * 255
 im_arrow_right = img.imread('images/right_arrow.png')
 im_arrow_right = np.transpose(im_arrow_right, (1, 0, 2)) * 255
 
-screen = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, display_type=DISPLAY_TYPE_SCREEN)
+screen = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, display_type=DISPLAY_TYPE_BOTH)
 
 pygame.init()
 input_control = InputControl(input_type=INPUT_TYPE_BOTH)
@@ -53,7 +53,7 @@ while running:
     if input_control.flex_chain:
         position = input_control.get_xy_position()
         if 0 <= position[0] <= 19:
-            delta = (position[0]-9.5)/30
+            delta = (position[0]-9.5)/15
             raw_index += delta
             if raw_index < 0:
                 raw_index = len(awesome_games) - 0.0001

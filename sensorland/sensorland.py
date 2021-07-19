@@ -19,9 +19,9 @@ CIRCUIT_TARGET_VALUES = [[[9, 94, 42], [126, 152, 63], [210, 192, 42]],
                          [[213, 24, 148], [126, 152, 63], [210, 192, 42]],
                          [[9, 94, 42], [126, 152, 63], [210, 192, 42]]
                          ]
-SENSORLAND_SPEED = [2, 2.5, 3, 3.5, 4, 4.5]
+SENSORLAND_SPEED = [2.5, 3, 4, 5, 6, 7]
 SENSORLAND_ITERATION_INC = [1, 2, 2, 3, 3, 4]
-SENSORLAND_END_OF_ROAD = [1000, 2000, 3000, 4000, 5000, 50000]
+SENSORLAND_END_OF_ROAD = [500, 2000, 3000, 4000, 5000, 50000]
 
 
 def load_and_transpose_image(path_to_image):
@@ -174,7 +174,7 @@ class Player:
         :param x:
         :param y:
         """
-        self.parabola = [-8, -6, -4, -2, -1, -1, -1, -1, 0, 0, 1, 1, 1, 1, 2, 4, 6, 8]
+        self.parabola = [-8, -6, -4, -2, -1, -1, -1, -1, 0, 0, 0, 1, 1, 1, 1, 2, 4, 6, 8]
         self.is_jumping = False
         self.is_dead = False
         self.is_running = False
@@ -374,7 +374,7 @@ class SensorLandGame:
         iteration_increment = SENSORLAND_ITERATION_INC[level_id]
         level_end = SENSORLAND_END_OF_ROAD[level_id]
         min_peace_time = 40
-        remaining_peace_time = 40 * iteration_increment
+        remaining_peace_time = 40 * (1 + (iteration_increment-1)/2)
         obstacles = []
         running = True
         move_pixels_remainder = 0
@@ -404,16 +404,16 @@ class SensorLandGame:
             for obst in obstacles:
                 self.display.place_sprite(obst.sprite, obst.x, obst.y)
             # Jump
-            a = pygame.event.get()
+            events = pygame.event.get()
             if self.input_control.flex_chain:
                 if self.input_control.button_a_pressed == 1:
                     self.input_control.button_a_pressed = 0
                     stefan.jump()
-            else:            
-                input_events = self.input_control.get_events()            
-                for event in input_events:
-                    if event == EVENT_UP_PRESSED:
-                        stefan.jump()
+            if self.input_control.keyboard:
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_UP:
+                            stefan.jump()
             # Move
             stefan.update(self.score)
             # Check collision
@@ -428,7 +428,7 @@ class SensorLandGame:
             self.display.write_string("SCORE", 1, 0, background=None)
             self.display.write_string("{:8d}".format(self.score), 20, 0, background=None)
             # show next speed
-            if remaining_level < (100 * iteration_increment):
+            if remaining_level < (50 * iteration_increment):
                 self.display.write_string("NEXT LEVEL", 10, 30, background=None)
             self.display.show()
             time.sleep(0.04)
@@ -464,11 +464,13 @@ class SensorLandGame:
                 if self.input_control.button_a_pressed == 1:
                     self.input_control.button_a_pressed = 0
                     wait_for_start = False
-            else:
-                input_events = self.input_control.get_events()
-                for event in input_events:
-                    if event == EVENT_UP_PRESSED:
-                        wait_for_start = False
+
+            events = pygame.event.get()
+            if self.input_control.keyboard:
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_UP:
+                            wait_for_start = False
             time.sleep(0.1)
             self.display.show()
 
@@ -491,5 +493,5 @@ class SensorLandGame:
         leader_board.fg_color = [0, 255, 255]
         leader_board.bg_color = None
         leader_board.run_leader_board(self.score, self.display, self.input_control)
-        time.sleep(0.5)
+        time.sleep(2)
         pygame.mixer.music.pause()

@@ -67,12 +67,13 @@ class LeaderBoard:
                     if 0 <= position[1] <= 19:
                         delta = (position[1] - 9.5)
                         sum_y += delta
-                        if sum_y < -10:
+                        if sum_y < -5:
                             char_name[entry_x] = get_next_char(char_name[entry_x])
                             sum_y = 0
-                        if sum_y > 10:
+                        if sum_y > 5:
                             char_name[entry_x] = get_prev_char(char_name[entry_x])
                             sum_y = 0
+                    print('a', input_controls.button_a_pressed)
                     if input_controls.button_a_pressed == 1:
                         input_controls.button_a_pressed = 0
                         if entry_x >= 2:

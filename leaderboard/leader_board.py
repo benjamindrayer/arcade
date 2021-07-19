@@ -73,7 +73,6 @@ class LeaderBoard:
                         if sum_y > 5:
                             char_name[entry_x] = get_prev_char(char_name[entry_x])
                             sum_y = 0
-                    print('a', input_controls.button_a_pressed)
                     if input_controls.button_a_pressed == 1:
                         input_controls.button_a_pressed = 0
                         if entry_x >= 2:
@@ -113,8 +112,27 @@ class LeaderBoard:
                 display.show()
         # 5. Save file
         self.save_leader_board()
-        input_controls.wait_for_key_pressed()
-
+        wait_for_key_pressed = True
+        while wait_for_key_pressed:
+            events = pygame.event.get()
+            if input_controls.keyboard:                
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_RIGHT:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_UP:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_DOWN:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_SPACE:
+                            wait_for_key_pressed = False
+            
+            if input_controls.flex_chain:
+                if input_controls.there_is_any_detection():
+                    wait_for_key_pressed = False
+            time.sleep(0.1)
 
     def load_leader_board(self):
         """load the leader board

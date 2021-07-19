@@ -178,7 +178,27 @@ class Tetris:
         self.display.write_string("HIGH SCORE", 13, 10, [50, 50, 255])
         leader_board.run_leader_board(score, self.display, self.input_control)
         time.sleep(0.5)
-        input_control.wait_for_key_pressed()
+        wait_for_key_pressed == True
+        while wait_for_key_pressed:
+            events = pygame.event.get()
+            if input_controls.keyboard:                
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_RIGHT:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_UP:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_DOWN:
+                            wait_for_key_pressed = False
+                        if event.key == pygame.K_SPACE:
+                            wait_for_key_pressed = False
+            
+            if input_controls.flex_chain:
+                if input_controls.there_is_any_detection():
+                    wait_for_key_pressed = False
+            time.sleep(0.1)
         pygame.mixer.music.pause()
 
 

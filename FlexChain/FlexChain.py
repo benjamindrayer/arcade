@@ -270,8 +270,8 @@ class FlexChainGame:
         self.display.write_string("s YOU DIED s", 10, 17, [255, 0, 5])
         self.display.show()
         time.sleep(2.0)
-        for i in range(0, 64):
-            r = i * 4
+        for i in range(0, 32):
+            r = i * 8
             if r > 255:
                 r = 255
             self.display.clear_screen([r, 0, 0])
@@ -346,7 +346,7 @@ class FlexChainGame:
 
         #prescaler initialisieren für flüssige eingabe aber langsame bewegung
         prescalerCurrentIncrement = 0
-        prescalerIncrementMax = 125 #max speed
+        prescalerIncrementMax = 20 #max speed
         incrementPrescalerLimit = prescalerIncrementMax
         self.movementDir = Dir.STOP
 
@@ -356,7 +356,7 @@ class FlexChainGame:
             if self.length - 10 < prescalerIncrementMax:  #increment speed depending on length
                 incrementPrescalerLimit = prescalerIncrementMax - self.length /2
             else:
-                incrementPrescalerLimit = 50
+                incrementPrescalerLimit = 20
 
             #prescaler incrementieren
             prescalerCurrentIncrement = prescalerCurrentIncrement + 1

@@ -25,19 +25,20 @@ Then gp to the rpi-rgb-led-matrix directory and compile
 cd rpi-rgb-led-matrix
 make -C examples-api-use
 ```
+make sure you have installed the following packages:
+```
+sudo apt-get install libatlas-base-dev
+sudo apt-get install libsdl2-mixer-2.0-0
+sudo python3 -m pip install -U numpy
+sudo python3 -m pip install matplotlib
+sudo python3 -m pip install -U pygame
+sudo python3 -m pip install pyserial
+```
 
 ```
 sudo python3 run.py
 ```
 
-
-Make sure that you use python3, pygame version 2, pyserial and keyboard is installed
-```
-pip3 install pygame
-pip3 install pyserial
-pip3 install keyboard
-pip3 install matplotlib
-```
 ### How to make it run on a raspberry pi with a 64x64 RGB-Led display ?
 
 The submodule for the rgb lib was added the following way

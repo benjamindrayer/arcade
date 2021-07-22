@@ -30,7 +30,8 @@ class ShutDown:
         :param input_control:
         :return:
         """
-        sound_shutdown =  pygame.mixer.Sound('shutdown/sound/winxpshutdown.mp3')
+        pygame.mixer.music.pause()
+        sound_shutdown = pygame.mixer.Sound('shutdown/sound/winxpshutdown.mp3')
         pygame.mixer.Sound.play(sound_shutdown)
         im = img.imread('shutdown/images/shutdown_win.png')
         image = np.transpose(im[:, :, :3], (1, 0, 2)) * 255

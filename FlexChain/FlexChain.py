@@ -382,6 +382,11 @@ class FlexChainGame:
                             self.movementDir = Dir.DOWN
                         if y_dir > move_threshold and self.movementDir != Dir.DOWN:
                             self.movementDir = Dir.UP
+                if input_control.button_shutdown_pressed_long:
+                    shut = ShutDown()
+                    shut.run_game(self.display, self.input_control)
+                if input_control.button_b_pressed:
+                    return
 
             if input_control.keyboard:
                 for event in events:

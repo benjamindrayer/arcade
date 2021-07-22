@@ -26,8 +26,11 @@ Y_VALUES_PD = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 0], [
 X_VALUES_PD = [[2, 5], [2, 6], [2, 7], [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [4, 0], [4, 1],
                [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [5, 0]]
 BUTTON_A_PD = [[0, 0]]
+BUTTON_B_PD = [[0, 0]]
+BUTTON_SHUTDOWN_PD = [[0, 0]]
 N_BEAMS = 20
 
+SHUT_DOWN_TIME_THRESH = 3
 
 class InputControl:
 
@@ -64,6 +67,11 @@ class InputControl:
         self.button_b = 0
         self.button_b_pressed = 0
         self.button_b_released = 0
+        self.button_shutdown = 0
+        self.button_shutdown_pressed = 0
+        self.button_shutdown_released = 0
+        self.button_shutdown_pressed_long = 0
+        self.button_shutdown_pressed_time = 0
         # Run thread to check for inputs
         t = Thread(target=self.read_inputs, daemon=True)
         t.start()
@@ -111,14 +119,32 @@ class InputControl:
                         for beam_id in range(N_BEAMS):
                             self.light_grid_y[beam_id] = (self.pd_bytes[Y_VALUES_PD[beam_id][0]] >> Y_VALUES_PD[beam_id][1]) & 1
                             self.light_grid_x[beam_id] = (self.pd_bytes[X_VALUES_PD[beam_id][0]] >> X_VALUES_PD[beam_id][1]) & 1
-                        #Read button
+                        #Read button A
                         button_a_value = (self.pd_bytes[BUTTON_A_PD[0][0]] >> BUTTON_A_PD[0][1]) & 1 
                         if self.button_a == 0 and button_a_value == 1:
-                           self.button_a_pressed = 1
+                            self.button_a_pressed = 1
                         if self.button_a == 1 and button_a_value == 0:
-                           self.button_a_released = 1                        
+                            self.button_a_released = 1
                         self.button_a = button_a_value
-#                        print(self.get_xy_position())
+                        #Read button B
+                        button_b_value = (self.pd_bytes[BUTTON_B_PD[0][0]] >> BUTTON_B_PD[0][1]) & 1
+                        if self.button_b == 0 and button_b_value == 1:
+                            self.button_b_pressed = 1
+                        if self.button_b == 1 and button_b_value == 0:
+                            self.button_b_released = 1
+                        self.button_b = button_b_value
+                        #Read button Shutdown
+                        button_shutdown_value = (self.pd_bytes[BUTTON_SHUTDOWN_PD[0][0]] >> BUTTON_SHUTDOWN_PD[0][1]) & 1
+                        if self.button_shutdown_value == 0 and button_shutdown_value == 1:
+                            self.button_shutdown_pressed = 1
+                            self.button_shutdown_pressed_time = time.time()
+                        if self.button_shutdown_value == 1 and button_shutdown_value == 0:
+                            self.button_shutdown_released = 1
+                        if button_shutdown_value == 1:
+                            current_time = time.time()
+                            if current_time - self.button_shutdown_pressed_time > SHUT_DOWN_TIME_THRESH:
+                                self.button_shutdown_pressed_long = 1
+                        self.button_shutdown = button_shutdown_value
             time.sleep(0.01)
 
 

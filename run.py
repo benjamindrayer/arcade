@@ -26,7 +26,8 @@ pygame.init()
 input_control = InputControl(input_type=INPUT_TYPE_BOTH)
 pygame.display.set_caption('Stefan')
 
-awesome_games = [SensorLandGame(), Tetris(), FlexChainGame(), ShutDown()]
+shut_down_game = ShutDown()
+awesome_games = [SensorLandGame(), Tetris(), FlexChainGame(), shut_down_game]
 
 # Do the selection menu only left and right are required
 game_index = 0
@@ -63,6 +64,8 @@ while running:
         game_index = int(raw_index)
         if 0 <= position[1] <= 3 or 16 <= position[1] <= 19 or input_control.button_a:
             selected_game.run_game(screen, input_control=input_control)
+        if input_control.button_shutdown_pressed_long:
+            shut_down_game.run(screen, input_control=input_control)
 
     if input_control.keyboard:
         for event in events:

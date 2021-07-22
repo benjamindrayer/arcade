@@ -6,6 +6,7 @@ import time
 import pygame
 from random import randrange
 from leaderboard.leader_board import *
+from shutdown.shutdown import ShutDown
 
 #simple enum to avoid using 1 for up. yay, so efficient!
 class Dir(Enum):
@@ -397,7 +398,11 @@ class FlexChainGame:
                         elif event.key == pygame.K_RIGHT and self.movementDir != Dir.LEFT:
                             if debugMode == 1: print("right")
                             self.movementDir = Dir.RIGHT
-
+                        elif event.key == pygame.K_q:
+                            return
+                        elif event.key == pygame.K_ESCAPE:
+                            shut = ShutDown()
+                            shut.run_game(self.display, self.input_control)
             time.sleep(0.001)
 
             #prescaler testen und ggf. einen Game-Tick ausführen

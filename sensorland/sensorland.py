@@ -7,6 +7,7 @@ import pygame
 import random
 from leaderboard.leader_board import *
 from controls.input_control import *
+from shutdown.shutdown import ShutDown
 
 GROUND_LEVEL = 31
 NUMBER_OF_CIRCUIT_ELEMENTS = 23     #Number of parts to combine the circuits
@@ -414,6 +415,12 @@ class SensorLandGame:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_UP:
                             stefan.jump()
+                    elif event.key == pygame.K_q:
+                        return
+                    elif event.key == pygame.K_ESCAPE:
+                        shut = ShutDown()
+                        shut.run_game(self.display, self.input_control)
+
             # Move
             stefan.update(self.score)
             # Check collision
@@ -471,6 +478,12 @@ class SensorLandGame:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_UP:
                             wait_for_start = False
+                        elif event.key == pygame.K_q:
+                            return
+                        elif event.key == pygame.K_ESCAPE:
+                            shut = ShutDown()
+                            shut.run_game(self.display, self.input_control)
+
             time.sleep(0.1)
             self.display.show()
 

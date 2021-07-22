@@ -7,6 +7,7 @@ from controls.input_control import *
 from sensorland.sensorland import SensorLandGame
 from tetris.tetris import Tetris
 from FlexChain.FlexChain import FlexChainGame
+from shutdown.shutdown import ShutDown
 import time
 
 DISPLAY_WIDTH = 64
@@ -25,7 +26,7 @@ pygame.init()
 input_control = InputControl(input_type=INPUT_TYPE_BOTH)
 pygame.display.set_caption('Stefan')
 
-awesome_games = [SensorLandGame(), Tetris(), FlexChainGame()]
+awesome_games = [SensorLandGame(), Tetris(), FlexChainGame(), ShutDown()]
 
 # Do the selection menu only left and right are required
 game_index = 0

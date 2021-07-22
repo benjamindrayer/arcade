@@ -8,6 +8,7 @@ from tetris.game.textures import *
 from display.display import *
 from leaderboard.leader_board import *
 from controls.input_control import *
+from shutdown.shutdown import ShutDown
 import time
 
 #Anchor of the board
@@ -125,6 +126,11 @@ class Tetris:
                         elif event.key == pygame.K_SPACE:
                             block_current.move_vertical_to(20, game_board)
                             iterations = 0
+                        elif event.key == pygame.K_q:
+                            return
+                        elif event.key == pygame.K_ESCAPE:
+                            shut = ShutDown()
+                            shut.run_game(self.display, self.input_control)
 
             self.display_game_board(game_board, GAME_BOARD_X, GAME_BOARD_Y)
             self.display_game_board(preview, 41, 1)

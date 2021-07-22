@@ -109,7 +109,7 @@ class LeaderBoard:
                                 return
                             if event.key == pygame.K_ESCAPE:
                                 shut = ShutDown()
-                                shut.run_game(self.display, self.input_control)
+                                shut.run_game(display, input_controls)
 
                 self.leader_board[index_board][0] = ''.join(char_name)
                 iteration = iteration + 1
@@ -141,7 +141,7 @@ class LeaderBoard:
                             return
                         if event.key == pygame.K_ESCAPE:
                             shut = ShutDown()
-                            shut.run_game(self.display, self.input_control)
+                            shut.run_game(display, input_controls)
 
             if input_controls.flex_chain:
                 if input_controls.there_is_any_detection():

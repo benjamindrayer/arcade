@@ -421,11 +421,11 @@ class SensorLandGame:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_UP:
                             stefan.jump()
-                    elif event.key == pygame.K_q:
-                        return
-                    elif event.key == pygame.K_ESCAPE:
-                        shut = ShutDown()
-                        shut.run_game(self.display, self.input_control)
+                        if event.key == pygame.K_q:
+                            return
+                        if event.key == pygame.K_ESCAPE:
+                            shut = ShutDown()
+                            shut.run_game(self.display, self.input_control)
 
             # Move
             stefan.update(self.score)

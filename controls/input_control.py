@@ -135,10 +135,10 @@ class InputControl:
                         self.button_b = button_b_value
                         #Read button Shutdown
                         button_shutdown_value = (self.pd_bytes[BUTTON_SHUTDOWN_PD[0][0]] >> BUTTON_SHUTDOWN_PD[0][1]) & 1
-                        if self.button_shutdown_value == 0 and button_shutdown_value == 1:
+                        if self.button_shutdown == 0 and button_shutdown_value == 1:
                             self.button_shutdown_pressed = 1
                             self.button_shutdown_pressed_time = time.time()
-                        if self.button_shutdown_value == 1 and button_shutdown_value == 0:
+                        if self.button_shutdown == 1 and button_shutdown_value == 0:
                             self.button_shutdown_released = 1
                         if button_shutdown_value == 1:
                             current_time = time.time()

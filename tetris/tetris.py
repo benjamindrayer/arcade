@@ -109,6 +109,11 @@ class Tetris:
                     input_control.button_a_pressed = 0
                     block_current.move_vertical_to(20, game_board)
                     iterations = 0
+                if input_control.button_shutdown_pressed_long:
+                    shut = ShutDown()
+                    shut.run_game(self.display, self.input_control)
+                if input_control.button_b_pressed:
+                    return
 
             events = pygame.event.get()
             if input_control.keyboard:
@@ -184,10 +189,10 @@ class Tetris:
         self.display.write_string("HIGH SCORE", 13, 10, [50, 50, 255])
         leader_board.run_leader_board(score, self.display, self.input_control)
         time.sleep(0.5)
-        wait_for_key_pressed == True
+        wait_for_key_pressed = True
         while wait_for_key_pressed:
             events = pygame.event.get()
-            if input_controls.keyboard:                
+            if input_control.keyboard:
                 for event in events:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_LEFT:
@@ -201,8 +206,8 @@ class Tetris:
                         if event.key == pygame.K_SPACE:
                             wait_for_key_pressed = False
             
-            if input_controls.flex_chain:
-                if input_controls.there_is_any_detection():
+            if input_control.flex_chain:
+                if input_control.there_is_any_detection():
                     wait_for_key_pressed = False
             time.sleep(0.1)
         pygame.mixer.music.pause()

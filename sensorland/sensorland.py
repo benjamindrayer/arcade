@@ -410,6 +410,12 @@ class SensorLandGame:
                 if self.input_control.button_a_pressed == 1:
                     self.input_control.button_a_pressed = 0
                     stefan.jump()
+                if self.input_control.button_shutdown_pressed_long:
+                    shut = ShutDown()
+                    shut.run_game(self.display, self.input_control)
+                if self.input_control.button_b_pressed:
+                    return
+
             if self.input_control.keyboard:
                 for event in events:
                     if event.type == pygame.KEYDOWN:
@@ -471,6 +477,11 @@ class SensorLandGame:
                 if self.input_control.button_a_pressed == 1:
                     self.input_control.button_a_pressed = 0
                     wait_for_start = False
+                if self.input_control.button_shutdown_pressed_long:
+                    shut = ShutDown()
+                    shut.run_game(self.display, self.input_control)
+                if self.input_control.button_b_pressed:
+                    return
 
             events = pygame.event.get()
             if self.input_control.keyboard:

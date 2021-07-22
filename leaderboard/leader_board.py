@@ -3,6 +3,7 @@ import os
 import pygame
 import time
 from controls.input_control import *
+from shutdown.shutdown import ShutDown
 
 def get_next_char(character):
     i = ord(character)
@@ -84,6 +85,9 @@ class LeaderBoard:
                         input_controls.button_b_pressed = 0
                         if entry_x > 0:
                             entry_x -= 1
+                    if input_controls.button_shutdown_pressed_long:
+                        shut = ShutDown()
+                        shut.run_game(display, input_controls)
 
                 if input_controls.keyboard:
                     for event in events:
@@ -101,6 +105,11 @@ class LeaderBoard:
                                 char_name[entry_x] = get_next_char(char_name[entry_x])
                             if event.key == pygame.K_DOWN:
                                 char_name[entry_x] = get_prev_char(char_name[entry_x])
+                            if event.key == pygame.K_q:
+                                return
+                            if event.key == pygame.K_ESCAPE:
+                                shut = ShutDown()
+                                shut.run_game(self.display, self.input_control)
 
                 self.leader_board[index_board][0] = ''.join(char_name)
                 iteration = iteration + 1
@@ -128,7 +137,12 @@ class LeaderBoard:
                             wait_for_key_pressed = False
                         if event.key == pygame.K_SPACE:
                             wait_for_key_pressed = False
-            
+                        if event.key == pygame.K_q:
+                            return
+                        if event.key == pygame.K_ESCAPE:
+                            shut = ShutDown()
+                            shut.run_game(self.display, self.input_control)
+
             if input_controls.flex_chain:
                 if input_controls.there_is_any_detection():
                     wait_for_key_pressed = False

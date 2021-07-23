@@ -414,7 +414,7 @@ class SensorLandGame:
                     shut = ShutDown()
                     shut.run_game(self.display, self.input_control)
                 if self.input_control.button_b_pressed:
-                    return
+                    return -1
 
             if self.input_control.keyboard:
                 for event in events:
@@ -422,7 +422,7 @@ class SensorLandGame:
                         if event.key == pygame.K_UP:
                             stefan.jump()
                         if event.key == pygame.K_q:
-                            return
+                            return -1
                         if event.key == pygame.K_ESCAPE:
                             shut = ShutDown()
                             shut.run_game(self.display, self.input_control)
@@ -447,8 +447,8 @@ class SensorLandGame:
             time.sleep(0.04)
         if stefan_is_dead:
             time.sleep(1)
-            return False
-        return True
+            return 0
+        return 1
 
     def run_game(self, display, input_control):
         """Run the Game
@@ -468,6 +468,7 @@ class SensorLandGame:
         stefan = create_stefan()
         # wait for 1st keypress
         wait_for_start = True
+        self.input_control.button_a_pressed = 0
         while wait_for_start:
             self.do_sky(sky, 0)
             self.do_mountains(mountains, 0)
@@ -505,8 +506,11 @@ class SensorLandGame:
         #Execute the different levelz
         for level_id in range(6):
             alive = self.do_level(level_id=level_id)
-            if not alive:
+            if alive == 0:
                 break
+            if alive == -1:
+                pygame.mixer.music.pause()
+                return
 
         time.sleep(1)
         self.display.clear_screen()

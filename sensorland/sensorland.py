@@ -414,6 +414,7 @@ class SensorLandGame:
                     shut = ShutDown()
                     shut.run_game(self.display, self.input_control)
                 if self.input_control.button_b_pressed:
+                    self.input_control.button_b_pressed = 0
                     return -1
 
             if self.input_control.keyboard:
@@ -482,6 +483,7 @@ class SensorLandGame:
                     shut = ShutDown()
                     shut.run_game(self.display, self.input_control)
                 if self.input_control.button_b_pressed:
+                    self.input_control.button_b_pressed = 0
                     return
 
             events = pygame.event.get()

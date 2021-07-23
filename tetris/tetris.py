@@ -89,7 +89,7 @@ class Tetris:
         block_next.place_on_board(preview)
         iterations = 0
         running = True
-        enable_rotation = True
+        enable_rotation = True        
         while running:
             time.sleep(0.005)
             if input_control.flex_chain:
@@ -114,6 +114,7 @@ class Tetris:
                     shut = ShutDown()
                     shut.run_game(self.display, self.input_control)
                 if input_control.button_b_pressed:
+                    input_control.button_b_pressed = 0
                     pygame.mixer.music.pause()
                     return
 

@@ -24,6 +24,12 @@ SENSORLAND_SPEED = [2.5, 3, 4, 5, 6, 7]
 SENSORLAND_ITERATION_INC = [1, 2, 2, 3, 3, 4]
 SENSORLAND_END_OF_ROAD = [500, 2000, 3000, 4000, 5000, 50000]
 
+SENSORLAND_PARABOLAS = [[-8, -6, -4, -2, -1, -1, -1, -1, 0, 0, 0, 1, 1, 1, 1, 2, 4, 6, 8],
+                        [-8, -6, -4, -2, -2, -1, -1, 1, 1, 2, 2, 4, 6, 8],
+                        [-8, -6, -4, -3, -2, -1, 1, 2, 3, 4, 6, 8],
+                        [-10, -7, -4, -2, -1, 1, 2, 4, 7, 10],
+                        [-10, -7, -4, -3, 3, 4, 7, 10],
+                        [-12, -8, -4, 4, 8, 12]]
 
 def load_and_transpose_image(path_to_image):
     """Load and transpose image, scale it to range 0,...,255
@@ -175,7 +181,7 @@ class Player:
         :param x:
         :param y:
         """
-        self.parabola = [-8, -6, -4, -2, -1, -1, -1, -1, 0, 0, 0, 1, 1, 1, 1, 2, 4, 6, 8]
+        self.parabola = SENSORLAND_PARABOLAS[0]
         self.is_jumping = False
         self.is_dead = False
         self.is_running = False
@@ -380,6 +386,7 @@ class SensorLandGame:
         running = True
         move_pixels_remainder = 0
         #Game Loop
+        self.parabola = SENSORLAND_PARABOLAS[level_id]
         while running:
             remaining_peace_time -= 1
             remaining_level = level_end-self.score

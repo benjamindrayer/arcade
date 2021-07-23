@@ -25,6 +25,12 @@ Then gp to the rpi-rgb-led-matrix directory and compile
 cd rpi-rgb-led-matrix
 make -C examples-api-use
 ```
+Build the lib and install it with the following commands:
+```
+sudo apt-get update && sudo apt-get install python3-dev python3-pillow -y
+make build-python PYTHON=python3
+sudo make install-python PYTHON=python3
+```
 make sure you have installed the following packages:
 ```
 sudo apt-get install libatlas-base-dev

@@ -20,15 +20,15 @@ EVENT_RIGHT_RELEASED = 7
 
 # Defines, where to look for entries of the process data
 # [2, 5] means byte 2 bit 5
+# 0..20 LG 1
+#
 N_BYTES_PD = 6
-Y_VALUES_PD = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5],
-               [1, 6], [1, 7], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4]]
-X_VALUES_PD = [[2, 5], [2, 6], [2, 7], [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [4, 0], [4, 1],
-               [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [5, 0]]
-BUTTON_A_PD = [[0, 0]]
-BUTTON_B_PD = [[0, 0]]
-BUTTON_SHUTDOWN_PD = [[0, 0]]
 N_BEAMS = 20
+Y_VALUES_PD = [[int(i/8), i%8] for i in range(N_BEAMS)]
+X_VALUES_PD = [[int((i+20)/8), (i+20)%8] for i in range(N_BEAMS)]
+BUTTON_A_PD = [[5, 0]]
+BUTTON_B_PD = [[5, 1]]
+BUTTON_SHUTDOWN_PD = [[5, 2]]
 
 SHUT_DOWN_TIME_THRESH = 3
 

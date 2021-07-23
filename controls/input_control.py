@@ -26,11 +26,11 @@ N_BYTES_PD = 6
 N_BEAMS = 20
 Y_VALUES_PD = [[int(i/8), i%8] for i in range(N_BEAMS)]
 X_VALUES_PD = [[int((i+20)/8), (i+20)%8] for i in range(N_BEAMS)]
-BUTTON_A_PD = [[5, 0]]
-BUTTON_B_PD = [[5, 1]]
+BUTTON_A_PD = [[5, 1]]
+BUTTON_B_PD = [[5, 0]]
 BUTTON_SHUTDOWN_PD = [[5, 2]]
 
-SHUT_DOWN_TIME_THRESH = 3
+SHUT_DOWN_TIME_THRESH = 1
 
 class InputControl:
 

@@ -70,6 +70,7 @@ class Tetris:
         leader_board = LeaderBoard('tetris/records.txt')
         self.display = display
         self.input_control = input_control
+        self.input_control.button_a_pressed = 0
         score = 0
         lines = 0
         level = 0
@@ -113,6 +114,7 @@ class Tetris:
                     shut = ShutDown()
                     shut.run_game(self.display, self.input_control)
                 if input_control.button_b_pressed:
+                    pygame.mixer.music.pause()
                     return
 
             events = pygame.event.get()
@@ -132,6 +134,7 @@ class Tetris:
                             block_current.move_vertical_to(20, game_board)
                             iterations = 0
                         elif event.key == pygame.K_q:
+                            pygame.mixer.music.pause()
                             return
                         elif event.key == pygame.K_ESCAPE:
                             shut = ShutDown()

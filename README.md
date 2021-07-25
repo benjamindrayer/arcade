@@ -40,6 +40,12 @@ sudo python3 -m pip install matplotlib
 sudo python3 -m pip install -U pygame
 sudo python3 -m pip install pyserial
 ```
+Disable audio on the pi to reduce matrix flickering:
+```
+sudo nano /boot/config.txt
+```
+Seach for dtparam=audio=on and change it to dtparam=audio=off
+External USB sound adapters work, and are much better quality anyway, so that is recommended if you happen to need sound. The on-board sound uses a timing circuit that the RGB-Matrix needs 
 
 ```
 sudo python3 run.py
